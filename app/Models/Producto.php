@@ -20,7 +20,7 @@ class Producto extends Model
         'precio',
         'stock',
         'stock_minimo',
-        'imagen_url',
+        'imagen',
         'estado'
     ];
 
@@ -37,7 +37,10 @@ class Producto extends Model
         return $this->belongsTo(Categoria::class, 'id_categoria', 'id_categoria');
     }
 
-
+    public function getImagenUrlAttribute()
+    {
+        return $this->imagen;
+    }
     public function detallePedidos(): HasMany
     {
         return $this->hasMany(DetallePedido::class, 'id_producto', 'id_producto');

@@ -128,7 +128,7 @@ class ListarProducto extends Component
             }
 
             $imagePath = $this->imagen->store('productos', 'public');
-            $data['imagen_url'] = $imagePath;
+            $data['imagen'] = $imagePath;
         }
 
         try {

@@ -4,13 +4,16 @@ namespace App\Livewire\Admin;
 
 use App\Models\Categoria;
 use App\Models\Producto;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Log;
 
-class CrearProducto extends Component
+class EditarProducto extends Component
 {
     use WithFileUploads;
 
+    public $productoId;
     public $id_categoria;
     public $nombre;
     public $descripcion;
@@ -18,6 +21,7 @@ class CrearProducto extends Component
     public $stock;
     public $stock_minimo = 0;
     public $imagen;
+    public $imagen_actual;
     public $estado = true;
 
     public $categorias = [];
@@ -43,9 +47,21 @@ class CrearProducto extends Component
         'stock.integer' => 'El stock debe ser un número entero',
     ];
 
-    public function mount()
+    public function mount($id)
     {
+        $this->productoId = $id;
         $this->categorias = Categoria::where('estado', true)->get();
+
+        $producto = Producto::findOrFail($id);
+
+        $this->id_categoria = $producto->id_categoria;
+        $this->nombre = $producto->nombre;
+        $this->descripcion = $producto->descripcion;
+        $this->precio = $producto->precio;
+        $this->stock = $producto->stock;
+        $this->stock_minimo = $producto->stock_minimo;
+        $this->imagen_actual = $producto->imagen;
+        $this->estado = $producto->estado;
     }
 
     public function saveProducto()
@@ -63,42 +79,44 @@ class CrearProducto extends Component
                 'estado' => $this->estado
             ];
 
-            // Manejar la imagen - CORREGIDO: usar 'imagen' que es el nombre de la columna
             if ($this->imagen) {
                 $imagePath = $this->imagen->store('productos', 'public');
-                $data['imagen'] = $imagePath; // ← 'imagen' en lugar de 'imagen_url'
+                $data['imagen'] = $imagePath;
+
+                if ($this->imagen_actual) {
+                    $this->eliminarImagenAnterior($this->imagen_actual);
+                }
             }
 
-            Producto::create($data);
+            Producto::find($this->productoId)->update($data);
 
-            session()->flash('success', 'Producto creado correctamente.');
-            $this->resetForm();
+            session()->flash('success', 'Producto actualizado correctamente.');
+            return redirect()->route('admin.productos');
         } catch (\Exception $e) {
-            session()->flash('error', 'Error al crear el producto: ' . $e->getMessage());
+            session()->flash('error', 'Error al actualizar el producto: ' . $e->getMessage());
         }
     }
 
-    public function resetForm()
+    protected function eliminarImagenAnterior($imagenPath)
     {
-        $this->reset([
-            'id_categoria',
-            'nombre',
-            'descripcion',
-            'precio',
-            'stock',
-            'stock_minimo',
-            'imagen',
-            'estado'
-        ]);
-        $this->resetErrorBag();
+        try {
+            $fullPath = storage_path('app/public/' . $imagenPath);
+
+            if (file_exists($fullPath) && is_file($fullPath)) {
+                unlink($fullPath);
+            }
+        } catch (\Exception $e) {
+            // Ahora Log funciona porque está importado
+            Log::warning('No se pudo eliminar la imagen anterior: ' . $e->getMessage());
+        }
     }
 
     public function render()
     {
-        return view('livewire.admin.crear-producto')
+        return view('livewire.admin.editar-producto')
             ->layout('layouts.admin', [
-                'title' => 'Crear Producto',
-                'pageTitle' => 'Crear Nuevo Producto'
+                'title' => 'Editar Producto',
+                'pageTitle' => 'Editar Producto'
             ]);
     }
 }

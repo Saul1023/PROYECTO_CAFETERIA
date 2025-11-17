@@ -206,7 +206,14 @@
                     <span>Productos</span>
                 </a>
             </div>
-
+            @if(auth()->user()->esAdministrador())
+            <div class="nav-item">
+                <a href="{{ route('admin.categorias') }}" class="nav-link {{ request()->routeIs('admin.categorias*') ? 'active' : '' }}">
+                    <i class="bi bi-tags"></i>
+                    <span>Categorías</span>
+                </a>
+            </div>
+            @endif
             @if(auth()->user()->esAdministrador())
             <div class="nav-item">
                 <a href="{{ route('admin.reportes') }}" class="nav-link">

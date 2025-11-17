@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('descripcion')->nullable();
             $table->string('imagen_url')->nullable();
             $table->boolean('estado')->default(true);
-            $table->timestampTz('fecha_creacion')->useCurrent();
+            $table->timestamps();
         });
     }
 

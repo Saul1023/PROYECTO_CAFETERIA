@@ -50,11 +50,12 @@ Route::middleware(['auth', 'role:ADMINISTRADOR'])->prefix('admin')->name('admin.
     // Gestión de Productos
     Route::get('/productos', \App\Livewire\Admin\ListarProducto::class)->name('productos');
     Route::get('/productos/crear', \App\Livewire\Admin\CrearProducto::class)->name('productos.crear');
+    Route::get('/productos/editar/{id}', \App\Livewire\Admin\EditarProducto::class)->name('productos.editar');
 
     // Gestión de Categorías
-    Route::get('/categorias', function () {
-        return view('admin.categorias.index');
-    })->name('categorias');
+    Route::get('/categorias', \App\Livewire\Admin\ListarCategoria::class)->name('categorias');
+    Route::get('/categorias/crear', \App\Livewire\Admin\CrearCategoria::class)->name('categorias.crear');
+    Route::get('/categorias/editar/{id}', \App\Livewire\Admin\EditarCategoria::class)->name('categorias.editar');
 
     // Gestión de Mesas
     Route::get('/mesas', function () {

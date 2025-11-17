@@ -77,7 +77,7 @@
                                 <tr>
                                     <td class="ps-4">
                                         @if($producto->imagen_url)
-                                        <img src="{{ asset('storage/' . $producto->imagen_url) }}"
+                                        <img src="{{ asset('storage/' . $producto->imagen) }}"
                                             alt="{{ $producto->nombre }}"
                                             class="rounded"
                                             style="width: 50px; height: 50px; object-fit: cover;">
