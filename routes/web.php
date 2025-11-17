@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Registro;
+use App\Models\Producto;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -13,7 +14,13 @@ use Illuminate\Support\Facades\Auth;
 
 // Landing page pública (la vista que me mostraste)
 Route::get('/', function () {
-    return view('welcome'); // La vista con productos
+    $productos = Producto::with('categoria')
+        ->where('estado', true)
+        ->where('stock', '>', 0)
+        ->orderBy('nombre')
+        ->get();
+
+    return view('welcome', compact('productos'));
 })->name('home');
 
 // Autenticación
