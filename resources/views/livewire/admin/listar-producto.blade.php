@@ -7,7 +7,7 @@
                     <h1 class="h2 text-brown mb-1">Gestión de Productos</h1>
                     <p class="text-muted mb-0">Administra los productos de la cafetería</p>
                 </div>
-                <a href="{{ route('admin.productos.crear') }}"
+                <a href="{{ route('productos.crear') }}"
                     class="btn btn-primary d-flex align-items-center">
                     <i class="bi bi-plus-circle me-2"></i>
                     Nuevo Producto
@@ -131,7 +131,7 @@
                                     </td>
                                     <td>
                                         <div class="d-flex justify-content-center gap-2">
-                                            <a href="{{ route('admin.productos.editar', $producto->id_producto) }}"
+                                            <a href="{{ route('productos.editar', $producto->id_producto) }}"
                                                 class="btn btn-sm btn-outline-primary d-flex align-items-center">
                                                 <i class="bi bi-pencil me-1"></i>
                                                 Editar

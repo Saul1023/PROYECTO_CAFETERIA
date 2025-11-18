@@ -9,7 +9,7 @@
                             <i class="bi bi-pencil-square me-2"></i>
                             Editar Categoría
                         </h5>
-                        <a href="{{ route('admin.categorias') }}" class="btn btn-outline-secondary btn-sm">
+                        <a href="{{ route('categorias') }}" class="btn btn-outline-secondary btn-sm">
                             <i class="bi bi-arrow-left me-1"></i>
                             Volver
                         </a>

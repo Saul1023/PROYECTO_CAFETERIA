@@ -7,7 +7,7 @@
                     <h1 class="text-3xl font-bold text-gray-900">Gestión de Categorías</h1>
                     <p class="text-gray-600">Administra las categorías de productos de la cafetería</p>
                 </div>
-                <a href="{{ route('admin.categorias.crear') }}"
+                <a href="{{ route('categorias.crear') }}"
                     class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700">
                     <i class="bi bi-plus-circle mr-2"></i>
                     Nueva Categoría
@@ -110,7 +110,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end gap-2">
-                                    <a href="{{ route('admin.categorias.editar', $categoria->id_categoria) }}"
+                                    <a href="{{ route('categorias.editar', $categoria->id_categoria) }}"
                                         class="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50">
                                         <i class="bi bi-pencil mr-1"></i>
                                         Editar

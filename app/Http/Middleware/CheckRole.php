@@ -92,11 +92,9 @@ class CheckRole
     {
         Log::info('Redirecting user to dashboard for role: ' . $rol);
         return match($rol) {
-            'ADMINISTRADOR' => redirect()->route('admin.dashboard')
+            'ADMINISTRADOR', 'EMPLEADO' => redirect()->route('dashboard')
                 ->with('error', 'No tienes permiso para acceder a esa área'),
-            'EMPLEADO' => redirect()->route('empleado.dashboard')
-                ->with('error', 'No tienes permiso para acceder a esa área'),
-            'CLIENTE' => redirect()->route('cliente.home')
+            'CLIENTE' => redirect()->route('home')
                 ->with('error', 'No tienes permiso para acceder a esa área'),
             default => redirect()->route('login')
                 ->with('error', 'Rol no reconocido')

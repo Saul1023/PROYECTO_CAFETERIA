@@ -39,7 +39,7 @@ class Login extends Component
         // Intentar autenticar
         $credentials = [
             'nombre_usuario' => $this->username,
-            'password' => $this->password // Laravel automáticamente usa getAuthPassword()
+            'password' => $this->password
         ];
 
         if (Auth::attempt($credentials, $this->remember)) {
@@ -63,14 +63,15 @@ class Login extends Component
 
         switch ($rolNombre) {
             case 'ADMINISTRADOR':
-                return redirect()->route('admin.dashboard');
-
             case 'EMPLEADO':
-                return redirect()->route('empleado.dashboard');
+                // Ambos van al dashboard unificado
+                return redirect()->route('dashboard')
+                    ->with('success', '¡Bienvenido ' . $usuario->nombre_completo . '!');
 
             case 'CLIENTE':
                 // Los clientes van al home (welcome.blade.php)
-                return redirect()->route('home')->with('success', '¡Bienvenido de nuevo!');
+                return redirect()->route('home')
+                    ->with('success', '¡Bienvenido de nuevo!');
 
             default:
                 Auth::logout();

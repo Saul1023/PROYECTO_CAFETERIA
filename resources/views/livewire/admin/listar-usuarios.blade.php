@@ -5,7 +5,7 @@
             <h1 class="h2 text-dark mb-1">Gestión de Usuarios</h1>
             <p class="text-muted mb-0">Administra los usuarios del sistema</p>
         </div>
-        <a href="{{ route('admin.usuarios.crear') }}"
+        <a href="{{ route('usuarios.crear') }}"
             class="btn btn-primary d-flex align-items-center">
             <i class="bi bi-plus-circle me-2"></i>
             Nuevo Usuario
