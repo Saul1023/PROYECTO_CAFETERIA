@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Log;
 class CheckRole
 {
     /**
@@ -15,43 +15,82 @@ class CheckRole
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      * @param  string  ...$roles
      */
-    public function handle(Request $request, Closure $next, ...$roles): Response
+      public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        // Verificar que el usuario esté autenticado
+        Log::info('=== CHECKROLE START ===');
+        Log::info('URL: ' . $request->url());
+        Log::info('User authenticated: ' . (Auth::check() ? 'YES' : 'NO'));
+
         if (!Auth::check()) {
+            Log::warning('User not authenticated, redirecting to login');
             return redirect()->route('login');
         }
 
-        $usuario = Auth::user();
+        $userId = Auth::id();
+        Log::info('User ID: ' . $userId);
 
-        // Verificar que el usuario tenga un rol asignado
-        if (!$usuario->rol) {
-            Auth::logout();
-            return redirect()->route('login')->with('error', 'Usuario sin rol asignado');
+        try {
+            Log::info('Attempting database queries...');
+
+            $usuario = \Illuminate\Support\Facades\DB::table('usuarios')
+                        ->where('id_usuario', $userId)
+                        ->first();
+
+            Log::info('User query result: ' . ($usuario ? 'FOUND' : 'NOT FOUND'));
+
+            if (!$usuario) {
+                Log::error('User not found in database, logging out');
+                Auth::logout();
+                return redirect()->route('login')->with('error', 'Usuario no encontrado');
+            }
+
+            Log::info('User estado: ' . ($usuario->estado ? 'ACTIVE' : 'INACTIVE'));
+
+            // Verificar que el usuario esté activo
+            if (!$usuario->estado) {
+                Log::warning('User inactive, logging out');
+                Auth::logout();
+                return redirect()->route('login')->with('error', 'Usuario inactivo');
+            }
+
+            Log::info('User rol ID: ' . $usuario->id_rol);
+
+            // CONSULTA DIRECTA PARA OBTENER EL ROL
+            $rol = \Illuminate\Support\Facades\DB::table('roles')
+                    ->where('id_rol', $usuario->id_rol)
+                    ->first();
+
+            Log::info('Rol query result: ' . ($rol ? 'FOUND' : 'NOT FOUND'));
+
+            if (!$rol) {
+                Log::error('Rol not found for user, logging out');
+                Auth::logout();
+                return redirect()->route('login')->with('error', 'Rol no encontrado');
+            }
+
+            $rolUsuario = $rol->nombre;
+            Log::info('User rol: ' . $rolUsuario);
+            Log::info('Required roles: ' . implode(', ', $roles));
+
+            // Verificar si el rol del usuario está en la lista de roles permitidos
+            if (!in_array($rolUsuario, $roles)) {
+                Log::warning('User role not allowed, redirecting to dashboard');
+                return $this->redirectToUserDashboard($rolUsuario);
+            }
+
+            Log::info('=== CHECKROLE SUCCESS - Access granted ===');
+            return $next($request); // ← ESTA LÍNEA FALTABA
+
+        } catch (\Exception $e) {
+            Log::error('CHECKROLE EXCEPTION: ' . $e->getMessage());
+            Log::error('Exception trace: ' . $e->getTraceAsString());
+            throw $e;
         }
-
-        // Verificar que el usuario esté activo
-        if (!$usuario->estado) {
-            Auth::logout();
-            return redirect()->route('login')->with('error', 'Usuario inactivo');
-        }
-
-        $rolUsuario = $usuario->rol->nombre;
-
-        // Verificar si el rol del usuario está en la lista de roles permitidos
-        if (!in_array($rolUsuario, $roles)) {
-            // Redirigir a su dashboard correspondiente
-            return $this->redirectToUserDashboard($rolUsuario);
-        }
-
-        return $next($request);
     }
 
-    /**
-     * Redirigir al dashboard correspondiente según el rol
-     */
     protected function redirectToUserDashboard(string $rol)
     {
+        Log::info('Redirecting user to dashboard for role: ' . $rol);
         return match($rol) {
             'ADMINISTRADOR', 'EMPLEADO' => redirect()->route('dashboard')
                 ->with('error', 'No tienes permiso para acceder a esa área'),

@@ -344,10 +344,10 @@
     @livewireScripts
 
     <script>
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('collapsed');
-            document.getElementById('mainContent').classList.toggle('expanded');
-        }
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('collapsed');
+        document.getElementById('mainContent').classList.toggle('expanded');
+    }
     </script>
 </body>
 

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Producto extends Model
 {
-    protected $table = 'productos';
+protected $table = 'productos';
     protected $primaryKey = 'id_producto';
     public $timestamps = false;
 
@@ -41,6 +41,7 @@ class Producto extends Model
     {
         return $this->imagen;
     }
+
     public function detallePedidos(): HasMany
     {
         return $this->hasMany(DetallePedido::class, 'id_producto', 'id_producto');
@@ -74,6 +75,15 @@ class Producto extends Model
         return $query->whereColumn('stock', '<=', 'stock_minimo');
     }
 
+    public function scopeConPromocionesActivas($query)
+    {
+        return $query->whereHas('promociones', function($q) {
+            $q->where('estado', true)
+              ->where('fecha_inicio', '<=', now())
+              ->where('fecha_fin', '>=', now());
+        });
+    }
+
     // Accessors
     public function getPrecioFormateadoAttribute()
     {
@@ -88,5 +98,60 @@ class Producto extends Model
     public function getStockBajoAttribute()
     {
         return $this->stock <= $this->stock_minimo;
+    }
+
+    // Nuevos accessors para promociones
+    public function getPromocionActivaAttribute()
+    {
+        return $this->promociones()
+            ->where('estado', true)
+            ->where('fecha_inicio', '<=', now())
+            ->where('fecha_fin', '>=', now())
+            ->first();
+    }
+
+    public function getTienePromocionAttribute()
+    {
+        return $this->promocion_activa !== null;
+    }
+
+    public function getPrecioConDescuentoAttribute()
+    {
+        $promocion = $this->promocion_activa;
+
+        if ($promocion) {
+            if ($promocion->tipo_descuento === 'porcentaje') {
+                return $this->precio * (1 - ($promocion->valor_descuento / 100));
+            } else { // descuento fijo
+                return max(0, $this->precio - $promocion->valor_descuento);
+            }
+        }
+
+        return $this->precio;
+    }
+
+    public function getDescuentoAplicadoAttribute()
+    {
+        $promocion = $this->promocion_activa;
+
+        if ($promocion) {
+            if ($promocion->tipo_descuento === 'porcentaje') {
+                return $promocion->valor_descuento . '%';
+            } else {
+                return 'Bs. ' . number_format($promocion->valor_descuento, 2);
+            }
+        }
+
+        return null;
+    }
+
+    public function getAhorroAttribute()
+    {
+        return $this->precio - $this->precio_con_descuento;
+    }
+
+    public function getAhorroFormateadoAttribute()
+    {
+        return 'Bs. ' . number_format($this->ahorro, 2);
     }
 }

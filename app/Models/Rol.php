@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Rol extends Model
 {
-    protected $table = 'roles';
+ protected $table = 'roles';
     protected $primaryKey = 'id_rol';
     public $timestamps = false;
 
@@ -21,10 +21,10 @@ class Rol extends Model
         'fecha_creacion' => 'datetime'
     ];
 
-    // Relaciones
+    // RELACIÓN CORREGIDA: hasMany en lugar de belongsToMany
     public function usuarios()
     {
-        return $this->belongsToMany(Usuario::class, 'rol_usuario', 'id_rol', 'id_usuario');
+        return $this->hasMany(Usuario::class, 'id_rol', 'id_rol');
     }
 
     // Scopes

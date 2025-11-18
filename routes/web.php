@@ -60,21 +60,19 @@ Route::middleware(['auth', 'role:ADMINISTRADOR,EMPLEADO'])->group(function () {
     Route::get('/categorias/crear', \App\Livewire\Admin\CrearCategoria::class)->name('categorias.crear');
     Route::get('/categorias/editar/{id}', \App\Livewire\Admin\EditarCategoria::class)->name('categorias.editar');
 
-    // Mesas (ambos pueden gestionar)
-    Route::get('/mesas', function () {
-        return view('dashboard.mesas.index');
-    })->name('mesas');
+    // Gestión de Mesas (ambos pueden gestionar)
+    Route::get('/mesas', \App\Livewire\Admin\ListarMesa::class)->name('mesas');
 
     // Ventas (ambos pueden gestionar)
     Route::get('/ventas', function () {
         return view('dashboard.ventas.index');
     })->name('ventas');
 
-    // Reservaciones (ambos pueden gestionar)
-    Route::get('/reservaciones', function () {
-        return view('dashboard.reservaciones.index');
-    })->name('reservaciones');
+    // Venta Rápida (ambos pueden gestionar)
+    Route::get('/ventas-rapida', \App\Livewire\Admin\VentaRapida::class)->name('ventas.rapida');
 
+    // Reservaciones (ambos pueden gestionar)
+    Route::get('/reservaciones', \App\Livewire\Admin\ListarReservacion::class)->name('reservaciones');
 });
 
 /*
@@ -89,10 +87,9 @@ Route::middleware(['auth', 'role:ADMINISTRADOR'])->group(function () {
     Route::get('/usuarios', \App\Livewire\Admin\ListarUsuarios::class)->name('usuarios');
     Route::get('/usuarios/crear', \App\Livewire\Admin\CrearUsuario::class)->name('usuarios.crear');
 
-    // Promociones (SOLO ADMINISTRADOR)
-    Route::get('/promociones', function () {
-        return view('dashboard.promociones.index');
-    })->name('promociones');
+    // Gestión de Promociones (SOLO ADMINISTRADOR)
+    Route::get('/promociones', \App\Livewire\Admin\ListarPromocion::class)->name('promociones');
+    Route::get('/promociones/crear', \App\Livewire\Admin\CrearPromocion::class)->name('promociones.crear');
 
     // Reportes (SOLO ADMINISTRADOR)
     Route::get('/reportes', function () {

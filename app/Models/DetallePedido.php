@@ -10,6 +10,9 @@ class DetallePedido extends Model
     protected $table = 'detalle_pedido';
     protected $primaryKey = 'id_detalle_pedido';
 
+    // AGREGAR ESTA LÍNEA
+    public $timestamps = false;
+
     protected $fillable = [
         'id_pedido',
         'id_producto',
