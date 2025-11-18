@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 |--------------------------------------------------------------------------
 */
 
-// Landing page pública (la vista que me mostraste)
+// Landing page pública
 Route::get('/', function () {
     $productos = Producto::with('categoria')
         ->where('estado', true)
@@ -39,79 +39,65 @@ Route::post('/logout', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Rutas de ADMINISTRADOR
+| Rutas de ADMINISTRADOR y EMPLEADO (Dashboard Unificado)
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:ADMINISTRADOR'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:ADMINISTRADOR,EMPLEADO'])->group(function () {
 
-    // Dashboard
+    // Dashboard (accesible para ambos roles)
     Route::get('/dashboard', function () {
-        return view('admin.dashboard');
+        return view('layouts.admin');
     })->name('dashboard');
 
-    // Gestión de Usuarios
-    Route::get('/usuarios', \App\Livewire\Admin\ListarUsuarios::class)->name('usuarios');
-    Route::get('/usuarios/crear', \App\Livewire\Admin\CrearUsuario::class)->name('usuarios.crear');
-
-    // Gestión de Productos
+    // Gestión de Productos (ambos pueden gestionar)
     Route::get('/productos', \App\Livewire\Admin\ListarProducto::class)->name('productos');
     Route::get('/productos/crear', \App\Livewire\Admin\CrearProducto::class)->name('productos.crear');
     Route::get('/productos/editar/{id}', \App\Livewire\Admin\EditarProducto::class)->name('productos.editar');
 
-    // Gestión de Categorías
+    // Gestión de Categorías (ambos pueden gestionar)
     Route::get('/categorias', \App\Livewire\Admin\ListarCategoria::class)->name('categorias');
     Route::get('/categorias/crear', \App\Livewire\Admin\CrearCategoria::class)->name('categorias.crear');
     Route::get('/categorias/editar/{id}', \App\Livewire\Admin\EditarCategoria::class)->name('categorias.editar');
 
-    // Gestión de Mesas
+    // Mesas (ambos pueden gestionar)
     Route::get('/mesas', function () {
-        return view('admin.mesas.index');
+        return view('dashboard.mesas.index');
     })->name('mesas');
 
-    // Gestión de Promociones
-    Route::get('/promociones', function () {
-        return view('admin.promociones.index');
-    })->name('promociones');
-
-    // Reportes
-    Route::get('/reportes', function () {
-        return view('admin.reportes.index');
-    })->name('reportes');
-
-    // Ventas
+    // Ventas (ambos pueden gestionar)
     Route::get('/ventas', function () {
-        return view('admin.ventas.index');
+        return view('dashboard.ventas.index');
     })->name('ventas');
+
+    // Reservaciones (ambos pueden gestionar)
+    Route::get('/reservaciones', function () {
+        return view('dashboard.reservaciones.index');
+    })->name('reservaciones');
+
 });
 
 /*
 |--------------------------------------------------------------------------
-| Rutas de EMPLEADO
+| Rutas SOLO para ADMINISTRADOR
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:EMPLEADO'])->prefix('empleado')->name('empleado.')->group(function () {
+Route::middleware(['auth', 'role:ADMINISTRADOR'])->group(function () {
 
-    // Dashboard
-    Route::get('/dashboard', function () {
-        return view('empleado.dashboard');
-    })->name('dashboard');
+    // Gestión de Usuarios (SOLO ADMINISTRADOR)
+    Route::get('/usuarios', \App\Livewire\Admin\ListarUsuarios::class)->name('usuarios');
+    Route::get('/usuarios/crear', \App\Livewire\Admin\CrearUsuario::class)->name('usuarios.crear');
 
-    // Ventas
-    Route::get('/ventas', function () {
-        return view('empleado.ventas.index');
-    })->name('ventas');
+    // Promociones (SOLO ADMINISTRADOR)
+    Route::get('/promociones', function () {
+        return view('dashboard.promociones.index');
+    })->name('promociones');
 
-    // Reservaciones
-    Route::get('/reservaciones', function () {
-        return view('empleado.reservaciones.index');
-    })->name('reservaciones');
-
-    // Productos (solo lectura)
-    Route::get('/productos', function () {
-        return view('empleado.productos.index');
-    })->name('productos');
+    // Reportes (SOLO ADMINISTRADOR)
+    Route::get('/reportes', function () {
+        return view('dashboard.reportes.index');
+    })->name('reportes');
 });
 
 /*
@@ -124,7 +110,7 @@ Route::middleware(['auth', 'role:CLIENTE'])->prefix('cliente')->name('cliente.')
 
     // Home del cliente (redirige al welcome con productos)
     Route::get('/home', function () {
-        return redirect()->route('home'); // Los clientes ven el welcome
+        return redirect()->route('home');
     })->name('home');
 
     // Mis Reservaciones

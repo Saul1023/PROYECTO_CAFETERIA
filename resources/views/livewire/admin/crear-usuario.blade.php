@@ -260,7 +260,7 @@
 
                     <!-- Botones de acción -->
                     <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-                        <a href="{{ route('admin.usuarios') }}"
+                        <a href="{{ route('usuarios') }}"
                             class="flex-1 inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 group">
                             <svg class="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform duration-200"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">

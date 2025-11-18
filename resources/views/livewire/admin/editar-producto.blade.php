@@ -7,7 +7,7 @@
                     <h1 class="text-3xl font-bold text-gray-900">Editar Producto</h1>
                     <p class="text-gray-600">Modifique los datos del producto</p>
                 </div>
-                <a href="{{ route('admin.productos') }}"
+                <a href="{{ route('productos') }}"
                     class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700">
                     <i class="bi bi-arrow-left mr-2"></i>
                     Volver a Productos
@@ -156,7 +156,7 @@
 
                     <!-- Botones -->
                     <div class="flex flex-col sm:flex-row gap-3 justify-end pt-6 border-t border-gray-200">
-                        <a href="{{ route('admin.productos') }}"
+                        <a href="{{ route('productos') }}"
                             class="px-4 py-2 border border-red-300 rounded-lg text-red-700 hover:bg-red-50 text-center">
                             Cancelar
                         </a>

@@ -9,7 +9,7 @@
                             <i class="bi bi-plus-circle me-2"></i>
                             Crear Nueva Categoría
                         </h5>
-                        <a href="{{ route('admin.categorias') }}" class="btn btn-outline-secondary btn-sm">
+                        <a href="{{ route('categorias') }}" class="btn btn-outline-secondary btn-sm">
                             <i class="bi bi-arrow-left me-1"></i>
                             Volver
                         </a>

@@ -90,6 +90,26 @@
             display: none;
         }
 
+        /* Separador visual para secciones solo admin */
+        .admin-only-section {
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
+            margin-top: 1rem;
+            padding-top: 1rem;
+        }
+
+        .section-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .sidebar.collapsed .section-label {
+            display: none;
+        }
+
         .main-content {
             margin-left: var(--sidebar-width);
             transition: margin-left 0.3s ease;
@@ -135,6 +155,16 @@
         .btn-toggle-sidebar:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
+
+        .role-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.2);
+            margin-top: 0.25rem;
+        }
     </style>
 </head>
 
@@ -152,74 +182,86 @@
         </div>
 
         <nav class="nav flex-column p-3">
+            <!-- Dashboard - Accesible para todos -->
             <div class="nav-item">
-                <a href="{{ route(auth()->user()->rol->nombre === 'ADMINISTRADOR' ? 'admin.dashboard' : 'empleado.dashboard') }}"
-                    class="nav-link {{ request()->routeIs('*.dashboard') ? 'active' : '' }}">
+                <a href="{{ route('dashboard') }}"
+                    class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <i class="bi bi-speedometer2"></i>
                     <span>Dashboard</span>
                 </a>
             </div>
 
-            @if(auth()->user()->esAdministrador())
+            <!-- Secciones comunes para Admin y Empleado -->
             <div class="nav-item">
-                <a href="{{ route('admin.usuarios') }}"
-                    class="nav-link {{ request()->routeIs('admin.usuarios') ? 'active' : '' }}">
-                    <i class="bi bi-people"></i>
-                    <span>Usuarios</span>
-                </a>
-            </div>
-            @endif
-
-            <div class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('reservaciones') }}"
+                    class="nav-link {{ request()->routeIs('reservaciones') ? 'active' : '' }}">
                     <i class="bi bi-calendar-check"></i>
                     <span>Reservaciones</span>
                 </a>
             </div>
 
-            @if(auth()->user()->esAdministrador())
             <div class="nav-item">
-                <a href="{{ route('admin.mesas') }}" class="nav-link">
+                <a href="{{ route('mesas') }}"
+                    class="nav-link {{ request()->routeIs('mesas') ? 'active' : '' }}">
                     <i class="bi bi-table"></i>
                     <span>Mesas</span>
                 </a>
             </div>
 
             <div class="nav-item">
-                <a href="{{ route('admin.promociones') }}" class="nav-link">
-                    <i class="bi bi-tag"></i>
-                    <span>Promociones</span>
-                </a>
-            </div>
-            @endif
-
-            <div class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('ventas') }}"
+                    class="nav-link {{ request()->routeIs('ventas') ? 'active' : '' }}">
                     <i class="bi bi-cart3"></i>
                     <span>Ventas</span>
                 </a>
             </div>
 
             <div class="nav-item">
-                <a href="{{ route('admin.productos') }}" class="nav-link {{ request()->routeIs('productos') ? 'active' : '' }}">
+                <a href="{{ route('productos') }}"
+                    class="nav-link {{ request()->routeIs('productos*') ? 'active' : '' }}">
                     <i class="bi bi-box-seam"></i>
                     <span>Productos</span>
                 </a>
             </div>
-            @if(auth()->user()->esAdministrador())
+
             <div class="nav-item">
-                <a href="{{ route('admin.categorias') }}" class="nav-link {{ request()->routeIs('admin.categorias*') ? 'active' : '' }}">
+                <a href="{{ route('categorias') }}"
+                    class="nav-link {{ request()->routeIs('categorias*') ? 'active' : '' }}">
                     <i class="bi bi-tags"></i>
                     <span>Categorías</span>
                 </a>
             </div>
-            @endif
+
+            <!-- Sección SOLO para Administradores -->
             @if(auth()->user()->esAdministrador())
-            <div class="nav-item">
-                <a href="{{ route('admin.reportes') }}" class="nav-link">
-                    <i class="bi bi-graph-up"></i>
-                    <span>Reportes</span>
-                </a>
+            <div class="admin-only-section">
+                <div class="section-label">
+                    <i class="bi bi-shield-check"></i> Solo Administrador
+                </div>
+
+                <div class="nav-item">
+                    <a href="{{ route('usuarios') }}"
+                        class="nav-link {{ request()->routeIs('usuarios*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i>
+                        <span>Usuarios</span>
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="{{ route('promociones') }}"
+                        class="nav-link {{ request()->routeIs('promociones') ? 'active' : '' }}">
+                        <i class="bi bi-tag"></i>
+                        <span>Promociones</span>
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="{{ route('reportes') }}"
+                        class="nav-link {{ request()->routeIs('reportes') ? 'active' : '' }}">
+                        <i class="bi bi-graph-up"></i>
+                        <span>Reportes</span>
+                    </a>
+                </div>
             </div>
             @endif
         </nav>
@@ -243,7 +285,9 @@
                         <div class="user-avatar">{{ substr(auth()->user()->nombre_completo, 0, 2) }}</div>
                         <div class="d-none d-md-block text-start">
                             <div class="fw-bold small">{{ auth()->user()->nombre_completo }}</div>
-                            <small class="text-muted">{{ auth()->user()->rol->nombre }}</small>
+                            <span class="role-badge">
+                                {{ auth()->user()->rol->nombre }}
+                            </span>
                         </div>
                         <i class="bi bi-chevron-down"></i>
                     </button>
