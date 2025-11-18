@@ -333,12 +333,21 @@ class VentaRapida extends Component
 
                     $producto = Producto::find($item['id_producto']);
                     if (!$producto) throw new Exception("Producto no encontrado: {$item['id_producto']}");
-                    if ($producto->stock < $item['cantidad']) throw new Exception("Stock insuficiente para {$producto->nombre}");
+
+                    // DEBUG STOCK
+                    Log::info("🔍 DEBUG STOCK - Producto: {$producto->nombre}");
+                    Log::info("📦 Stock actual: {$producto->stock}");
+                    Log::info("🛒 Cantidad a vender: {$item['cantidad']}");
+
+                    if ($producto->stock < $item['cantidad']) {
+                        throw new Exception("Stock insuficiente para {$producto->nombre}");
+                    }
 
                     // Calcular descuento individual para este producto
                     $descuentoIndividual = $item['tiene_promocion'] ?
                         ($item['precio_original'] - $item['precio_unitario']) * $item['cantidad'] : 0;
 
+                    // Crear detalle del pedido
                     DetallePedido::create([
                         'id_pedido' => $pedido->id_pedido,
                         'id_producto' => $producto->id_producto,
@@ -349,8 +358,12 @@ class VentaRapida extends Component
                         'estado_preparacion' => 'pendiente',
                     ]);
 
+                    // ✅ DISMINUIR STOCK - Método 1 (usando decrement)
                     $producto->decrement('stock', $item['cantidad']);
-                    Log::info('Stock actualizado para: ' . $producto->nombre . ' - Nuevo stock: ' . $producto->stock);
+
+                    // Verificar el cambio
+                    $productoRefresh = Producto::find($item['id_producto']);
+                    Log::info("✅ Stock después de decrement: {$productoRefresh->stock}");
                 }
 
                 // Crear venta
@@ -370,8 +383,8 @@ class VentaRapida extends Component
 
                 Log::info('Venta creada ID: ' . $venta->id_venta);
 
+                // Crear detalles de venta
                 foreach ($this->carrito as $item) {
-                    // Calcular descuento individual para este producto en la venta
                     $descuentoIndividual = $item['tiene_promocion'] ?
                         ($item['precio_original'] - $item['precio_unitario']) * $item['cantidad'] : 0;
 
@@ -385,6 +398,7 @@ class VentaRapida extends Component
                     ]);
                 }
 
+                // Actualizar estado de mesa si es consumo en mesa
                 if ($this->tipoConsumo === 'mesa' && $this->mesaSeleccionada) {
                     $mesa = Mesa::find($this->mesaSeleccionada);
                     if ($mesa) {
@@ -395,8 +409,12 @@ class VentaRapida extends Component
             });
 
             Log::info('=== VENTA COMPLETADA EXITOSAMENTE ===');
-            $this->resetVenta();
+
+            // ✅ PRIMERO: Mostrar el mensaje con el total ANTES de resetear
             session()->flash('success', 'Venta registrada exitosamente. Total: Bs. ' . number_format($this->total, 2));
+
+            // ✅ LUEGO: Resetear la venta
+            $this->resetVenta();
 
         } catch (Exception $e) {
             Log::error('ERROR EN VENTA: ' . $e->getMessage());

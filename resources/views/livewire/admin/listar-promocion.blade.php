@@ -8,7 +8,7 @@
                     <h1 class="h2 text-brown mb-1">Gestión de Promociones</h1>
                     <p class="text-muted mb-0">Administra las promociones y descuentos de productos</p>
                 </div>
-                <a href="{{ route('admin.promociones.crear') }}" class="btn btn-primary d-flex align-items-center">
+                <a href="{{ route('promociones.crear') }}" class="btn btn-primary d-flex align-items-center">
                     <i class="bi bi-plus-circle me-2"></i>
                     Nueva Promoción
                 </a>

@@ -64,10 +64,7 @@ Route::middleware(['auth', 'role:ADMINISTRADOR,EMPLEADO'])->group(function () {
     Route::get('/mesas', \App\Livewire\Admin\ListarMesa::class)->name('mesas');
 
     // Ventas (ambos pueden gestionar)
-    Route::get('/ventas', function () {
-        return view('dashboard.ventas.index');
-    })->name('ventas');
-
+    Route::get('/ventas', \App\Livewire\Admin\VentaRapida::class)->name('ventas');
     // Venta Rápida (ambos pueden gestionar)
     Route::get('/ventas-rapida', \App\Livewire\Admin\VentaRapida::class)->name('ventas.rapida');
 

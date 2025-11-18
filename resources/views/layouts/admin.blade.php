@@ -13,158 +13,158 @@
     @livewireStyles
 
     <style>
-        :root {
-            --sidebar-width: 260px;
-            --sidebar-collapsed-width: 80px;
-            --primary-color: #6f4e37;
-            --secondary-color: #d4a574;
-        }
+    :root {
+        --sidebar-width: 260px;
+        --sidebar-collapsed-width: 80px;
+        --primary-color: #6f4e37;
+        --secondary-color: #d4a574;
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-        }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+    }
 
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            width: var(--sidebar-width);
-            background: linear-gradient(180deg, #6f4e37 0%, #d4a574 100%);
-            color: white;
-            transition: all 0.3s ease;
-            z-index: 1000;
-            overflow-y: auto;
-        }
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: var(--sidebar-width);
+        background: linear-gradient(180deg, #6f4e37 0%, #d4a574 100%);
+        color: white;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        overflow-y: auto;
+    }
 
-        .sidebar.collapsed {
-            width: var(--sidebar-collapsed-width);
-        }
+    .sidebar.collapsed {
+        width: var(--sidebar-collapsed-width);
+    }
 
-        .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+    .sidebar-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
 
-        .sidebar-brand {
-            font-size: 1.25rem;
-            font-weight: bold;
-            white-space: nowrap;
-        }
+    .sidebar-brand {
+        font-size: 1.25rem;
+        font-weight: bold;
+        white-space: nowrap;
+    }
 
-        .sidebar.collapsed .sidebar-brand {
-            display: none;
-        }
+    .sidebar.collapsed .sidebar-brand {
+        display: none;
+    }
 
-        .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
+    .nav-link {
+        color: rgba(255, 255, 255, 0.8);
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
 
-        .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
 
-        .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.15);
-            color: white;
-        }
+    .nav-link.active {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: white;
+    }
 
-        .nav-link i {
-            font-size: 1.25rem;
-            width: 1.5rem;
-            text-align: center;
-        }
+    .nav-link i {
+        font-size: 1.25rem;
+        width: 1.5rem;
+        text-align: center;
+    }
 
-        .sidebar.collapsed .nav-link span {
-            display: none;
-        }
+    .sidebar.collapsed .nav-link span {
+        display: none;
+    }
 
-        /* Separador visual para secciones solo admin */
-        .admin-only-section {
-            border-top: 2px solid rgba(255, 255, 255, 0.2);
-            margin-top: 1rem;
-            padding-top: 1rem;
-        }
+    /* Separador visual para secciones solo admin */
+    .admin-only-section {
+        border-top: 2px solid rgba(255, 255, 255, 0.2);
+        margin-top: 1rem;
+        padding-top: 1rem;
+    }
 
-        .section-label {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 0.5rem 1.5rem;
-            font-weight: 600;
-        }
+    .section-label {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 600;
+    }
 
-        .sidebar.collapsed .section-label {
-            display: none;
-        }
+    .sidebar.collapsed .section-label {
+        display: none;
+    }
 
-        .main-content {
-            margin-left: var(--sidebar-width);
-            transition: margin-left 0.3s ease;
-            min-height: 100vh;
-        }
+    .main-content {
+        margin-left: var(--sidebar-width);
+        transition: margin-left 0.3s ease;
+        min-height: 100vh;
+    }
 
-        .main-content.expanded {
-            margin-left: var(--sidebar-collapsed-width);
-        }
+    .main-content.expanded {
+        margin-left: var(--sidebar-collapsed-width);
+    }
 
-        .top-navbar {
-            background: white;
-            padding: 1rem 1.5rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-            position: sticky;
-            top: 0;
-            z-index: 999;
-        }
+    .top-navbar {
+        background: white;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        position: sticky;
+        top: 0;
+        z-index: 999;
+    }
 
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #6f4e37 0%, #d4a574 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6f4e37 0%, #d4a574 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
 
-        .btn-toggle-sidebar {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.25rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-        }
+    .btn-toggle-sidebar {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.25rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+    }
 
-        .btn-toggle-sidebar:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
+    .btn-toggle-sidebar:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
 
-        .role-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            background: rgba(255, 255, 255, 0.2);
-            margin-top: 0.25rem;
-        }
+    .role-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.2);
+        margin-top: 0.25rem;
+    }
     </style>
 </head>
 
@@ -201,16 +201,15 @@
             </div>
 
             <div class="nav-item">
-                <a href="{{ route('mesas') }}"
-                    class="nav-link {{ request()->routeIs('mesas') ? 'active' : '' }}">
+                <a href="{{ route('mesas') }}" class="nav-link {{ request()->routeIs('mesas') ? 'active' : '' }}">
                     <i class="bi bi-table"></i>
                     <span>Mesas</span>
                 </a>
             </div>
 
             <div class="nav-item">
-                <a href="{{ route('ventas') }}"
-                    class="nav-link {{ request()->routeIs('ventas') ? 'active' : '' }}">
+                <a href="{{ route('ventas.rapida') }}"
+                    class="nav-link {{ request()->routeIs('ventas.rapida') ? 'active' : '' }}">
                     <i class="bi bi-cart3"></i>
                     <span>Ventas</span>
                 </a>
