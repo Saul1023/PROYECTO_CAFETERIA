@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Reservacion extends Model
 {
-    protected $table = 'reservaciones';
+  protected $table = 'reservaciones';
     protected $primaryKey = 'id_reservacion';
     public $timestamps = false;
 
@@ -21,12 +21,15 @@ class Reservacion extends Model
     ];
 
     protected $casts = [
-        'fecha_reservacion' => 'datetime',
-        'hora_reservacion' => 'datetime',
+        'fecha_reservacion' => 'date',
+        'hora_reservacion' => 'datetime:H:i:s', // o usar un accessor personalizado
         'fecha_creacion' => 'datetime',
-        'fecha_actualizacion' => 'datetime'
+        'fecha_actualizacion' => 'datetime',
     ];
-
+    public function getHoraReservacionAttribute($value)
+    {
+        return \Carbon\Carbon::createFromFormat('H:i:s', $value);
+    }
     // Relaciones
     public function mesa()
     {

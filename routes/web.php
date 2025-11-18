@@ -65,14 +65,18 @@ Route::middleware(['auth', 'role:ADMINISTRADOR'])->prefix('admin')->name('admin.
     Route::get('/categorias/editar/{id}', \App\Livewire\Admin\EditarCategoria::class)->name('categorias.editar');
 
     // Gestión de Mesas
-    Route::get('/mesas', function () {
-        return view('admin.mesas.index');
-    })->name('mesas');
+    // En la sección de ADMINISTRADOR, agrega:
+    Route::get('/mesas', \App\Livewire\Admin\ListarMesa::class)->name('mesas');
+    //Route::get('/mesas', function () {
+    //    return view('admin.mesas.index');
+    //})->name('mesas');
 
     // Gestión de Promociones
-    Route::get('/promociones', function () {
-        return view('admin.promociones.index');
-    })->name('promociones');
+    Route::get('/promociones', \App\Livewire\Admin\ListarPromocion::class)->name('promociones');
+    Route::get('/promociones/crear', \App\Livewire\Admin\CrearPromocion::class)->name('promociones.crear');
+    //Route::get('/promociones', function () {
+      //  return view('admin.promociones.index');
+    //})->name('promociones');
 
     // Reportes
     Route::get('/reportes', function () {
@@ -80,9 +84,14 @@ Route::middleware(['auth', 'role:ADMINISTRADOR'])->prefix('admin')->name('admin.
     })->name('reportes');
 
     // Ventas
+    Route::get('/ventas-rapida', \App\Livewire\Admin\VentaRapida::class)->name('ventas.rapida');
+
+    // Historial de Ventas (mantener esta ruta para reportes)
     Route::get('/ventas', function () {
         return view('admin.ventas.index');
     })->name('ventas');
+    // Reservaciones
+    Route::get('/reservaciones', \App\Livewire\Admin\ListarReservacion::class)->name('reservaciones');
 });
 
 /*

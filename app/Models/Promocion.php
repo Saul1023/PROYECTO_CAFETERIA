@@ -7,7 +7,7 @@ use Carbon\Carbon;
 
 class Promocion extends Model
 {
-    protected $table = 'promociones';
+     protected $table = 'promociones';
     protected $primaryKey = 'id_promocion';
     public $timestamps = false;
 
@@ -29,10 +29,17 @@ class Promocion extends Model
         'fecha_creacion' => 'datetime'
     ];
 
-    // Relaciones
+    // Relaciones - CORREGIDAS
     public function productos()
     {
-        return $this->belongsToMany(Producto::class, 'promocion_producto', 'id_promocion', 'id_producto');
+        return $this->belongsToMany(
+            Producto::class,
+            'promocion_producto',
+            'id_promocion',
+            'id_producto',
+            'id_promocion',
+            'id_producto' // ← Especificar la clave del producto
+        );
     }
 
     // Scopes

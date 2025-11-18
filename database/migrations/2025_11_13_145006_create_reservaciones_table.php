@@ -20,8 +20,9 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('usuarios', 'id_usuario')
                 ->onDelete('set null');
-            $table->timestamp('fecha_reservacion')->nullable();
-            $table->timestamp('hora_reservacion')->nullable();
+            // CAMBIOS AQUÍ:
+            $table->date('fecha_reservacion')->nullable(); // Cambiado de timestamp a date
+            $table->time('hora_reservacion')->nullable(); // Cambiado de timestamp a time
             $table->integer('numero_personas');
             $table->enum('estado', ['pendiente', 'confirmada', 'completada', 'cancelada', 'no_asistio'])->default('pendiente');
             $table->text('observaciones')->nullable();

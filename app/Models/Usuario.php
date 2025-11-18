@@ -8,7 +8,7 @@ use Illuminate\Notifications\Notifiable;
 
 class Usuario extends Authenticatable
 {
-    use Notifiable;
+  use Notifiable;
 
     protected $table = 'usuarios';
     protected $primaryKey = 'id_usuario';
@@ -35,14 +35,12 @@ class Usuario extends Authenticatable
         'ultimo_acceso' => 'datetime'
     ];
 
-    // Para que Laravel use el campo correcto de contraseña
     public function getAuthPassword()
     {
         return $this->password;
     }
 
     // Relaciones
-
     public function reservaciones()
     {
         return $this->hasMany(Reservacion::class, 'id_usuario', 'id_usuario');
@@ -53,30 +51,31 @@ class Usuario extends Authenticatable
         return $this->hasMany(Venta::class, 'id_usuario', 'id_usuario');
     }
 
-    // Scopes
-    public function scopeActivos($query)
-    {
-        return $query->where('estado', true);
-    }
-    // Métodos Helper para verificar roles
-    public function esAdministrador()
-    {
-        return $this->id_rol && $this->rol->nombre === 'ADMINISTRADOR';
-    }
-
     public function rol()
     {
         return $this->belongsTo(Rol::class, 'id_rol', 'id_rol');
     }
 
+    // Scopes
+    public function scopeActivos($query)
+    {
+        return $query->where('estado', true);
+    }
+
+    // Métodos Helper para verificar roles - MEJORADOS
+    public function esAdministrador()
+    {
+        return $this->id_rol && optional($this->rol)->nombre === 'ADMINISTRADOR';
+    }
+
     public function esEmpleado()
     {
-        return $this->rol->nombre === 'EMPLEADO';
+        return $this->id_rol && optional($this->rol)->nombre === 'EMPLEADO';
     }
 
     public function esCliente()
     {
-        return $this->rol->nombre === 'CLIENTE';
+        return $this->id_rol && optional($this->rol)->nombre === 'CLIENTE';
     }
 
     public function scopePorRol($query, $nombreRol)

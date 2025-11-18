@@ -8,8 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Pedido extends Model
 {
-    protected $table = 'pedidos';
+protected $table = 'pedidos';
     protected $primaryKey = 'id_pedido';
+
+    // AGREGAR ESTA LÍNEA
+    public $timestamps = false;
 
     protected $fillable = [
         'numero_pedido',
