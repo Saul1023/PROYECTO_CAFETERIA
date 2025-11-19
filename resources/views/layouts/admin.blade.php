@@ -292,19 +292,42 @@
                     </button>
 
                     <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li class="user-info-dropdown">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="user-avatar">{{ substr(auth()->user()->nombre_completo, 0, 2) }}</div>
+                                <div class="d-none d-md-block text-start">
+                                    <div class="fw-bold small">{{ auth()->user()->nombre_completo }}</div>
+                                    <span class="role-badge">
+                                        {{ auth()->user()->rol->nombre }}
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
                         <li>
-                            <a class="dropdown-item" href="#">
-                                <i class="bi bi-person me-2"></i>Mi Perfil
+                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPerfil">
+                                <i class="bi bi-person"></i>
+                                <span>Mi Perfil</span>
                             </a>
                         </li>
                         <li>
-                            <hr class="dropdown-divider">
+                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalConfiguracion">
+                                <i class="bi bi-gear"></i>
+                                <span>Configuración</span>
+                            </a>
                         </li>
                         <li>
-                            <form method="POST" action="{{ route('logout') }}">
+                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalAyuda">
+                                <i class="bi bi-question-circle"></i>
+                                <span>Ayuda</span>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}" id="logoutForm">
                                 @csrf
-                                <button type="submit" class="dropdown-item text-danger">
-                                    <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
+                                <button type="submit" class="dropdown-item user-dropdown-item text-danger">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    <span>Cerrar Sesión</span>
                                 </button>
                             </form>
                         </li>
@@ -337,6 +360,110 @@
             @endisset
         </main>
     </div>
+
+      @auth
+    <!-- Modales -->
+    <div class="modal fade" id="modalPerfil" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-black text-white">
+                    <h5 class="modal-title"><i class="bi bi-person-circle me-2"></i>Mi Perfil</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-person me-1 text-primary"></i>Nombre completo:
+                            </label>
+                            <div class="form-control bg-light">{{ Auth::user()->nombre_completo }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-at me-1 text-info"></i>Nombre de usuario:
+                            </label>
+                            <div class="form-control bg-light">{{ Auth::user()->nombre_usuario }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-envelope me-1 text-success"></i>Email:
+                            </label>
+                            <div class="form-control bg-light">{{ Auth::user()->email }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-telephone me-1 text-warning"></i>Teléfono:
+                            </label>
+                            <div class="form-control bg-light">{{ Auth::user()->telefono ?? '—' }}</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-toggle-on me-1 text-secondary"></i>Estado:
+                            </label>
+                            <div class="form-control bg-light">
+                                @if(Auth::user()->estado)
+                                    <span class="badge bg-success">Activo</span>
+                                @else
+                                    <span class="badge bg-danger">Inactivo</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalConfiguracion" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-black text-white">
+                    <h5 class="modal-title"><i class="bi bi-gear me-2"></i>Configuración</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    @livewire('perfil-usuario')
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalAyuda" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-black text-white">
+                    <h5 class="modal-title"><i class="bi bi-question-circle me-2"></i>Centro de Ayuda</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Bienvenido a El Rincón Sabrosito.</strong></p>
+                    <p>Aquí puedes explorar nuestros productos, realizar reservas y gestionar tu perfil.</p>
+                    <ul>
+                        <li><strong>Mi Perfil:</strong> Ver tus datos personales y roles asignados.</li>
+                        <li><strong>Configuración:</strong> Cambiar tu usuario o contraseña.</li>
+                        <li><strong>Reservar:</strong> Realiza reservas de nuestros productos.</li>
+                        <li><strong>Mis Reservas:</strong> Consulta el estado de tus reservaciones.</li>
+                    </ul>
+                    <hr>
+                    <h6>Soporte:</h6>
+                    <p>Si tienes alguna consulta o inconveniente, contáctanos:</p>
+                    <ul>
+                        <li><i class="bi bi-envelope"></i> contacto@rinconsabrosito.com</li>
+                        <li><i class="bi bi-telephone"></i> +591 4 1234567</li>
+                        <li><i class="bi bi-geo-alt"></i> Potosí, Bolivia</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endauth
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

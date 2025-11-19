@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\PerfilUsuario;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Registro;
@@ -124,7 +125,6 @@ Route::middleware(['auth', 'role:CLIENTE'])->prefix('cliente')->name('cliente.')
     })->name('reservar');
 
     // Mi Perfil (usa layout admin pero con perfil simple)
-    Route::get('/perfil', function () {
-        return view('cliente.perfil');
-    })->name('perfil');
+    Route::get('/perfil',PerfilUsuario::class)->name('perfil');
+
 });

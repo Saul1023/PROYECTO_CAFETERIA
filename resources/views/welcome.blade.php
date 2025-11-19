@@ -7,6 +7,8 @@
     <title>{{ config('app.name', 'El Rincón Sabrosito') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=playfair-display:700|poppins:400,500,600" rel="stylesheet" />
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
@@ -185,6 +187,55 @@
         align-items: center;
     }
 
+    /* User Avatar Styles */
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--color-accent), var(--color-secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.9rem;
+        color: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Dropdown Styles */
+    .dropdown-menu {
+        border: none;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        border-radius: 12px;
+        padding: 0.5rem;
+        min-width: 280px;
+    }
+
+    .user-info-dropdown {
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 0.5rem;
+    }
+
+    .user-dropdown-item {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .user-dropdown-item:hover {
+        background: var(--color-cream);
+        transform: translateX(5px);
+    }
+
+    .user-dropdown-item i {
+        font-size: 1.2rem;
+        width: 20px;
+    }
+
     /* Botones Mejorados */
     .btn {
         padding: 0.75rem 1.8rem;
@@ -250,6 +301,17 @@
         color: var(--color-dark);
         border-color: var(--color-secondary);
         transform: translateY(-3px);
+    }
+
+    .btn-light {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--color-cream);
+        border: 2px solid var(--color-secondary);
+    }
+
+    .btn-light:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
     }
 
     .btn-logout {
@@ -341,6 +403,7 @@
 
     .mobile-menu-list .btn {
         width: 100%;
+        text-align: center;
     }
 
     /* Main Content Container */
@@ -416,7 +479,7 @@
         opacity: 0.95;
     }
 
-    /* Products Grid - MÁS COMPACTO PARA 3 CARDS */
+    /* Products Grid */
     .martinez-products-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -466,7 +529,6 @@
 
     .martinez-product-image {
         height: 200px;
-        /* MÁS COMPACTO */
         background: linear-gradient(135deg, var(--color-secondary) 0%, #c4a57b 100%);
         display: flex;
         align-items: center;
@@ -504,7 +566,6 @@
 
     .martinez-product-info {
         padding: 1.25rem;
-        /* MÁS COMPACTO */
         flex-grow: 1;
         display: flex;
         flex-direction: column;
@@ -512,7 +573,6 @@
 
     .martinez-product-title {
         font-size: 1.1rem;
-        /* MÁS PEQUEÑO */
         font-weight: 600;
         color: var(--color-primary);
         margin-bottom: 0.75rem;
@@ -527,7 +587,6 @@
     .martinez-product-description {
         color: #666;
         font-size: 0.85rem;
-        /* MÁS PEQUEÑO */
         margin-bottom: 1rem;
         line-height: 1.5;
         flex-grow: 1;
@@ -548,7 +607,6 @@
 
     .martinez-product-price {
         font-size: 1.5rem;
-        /* MÁS PEQUEÑO */
         font-weight: 700;
         color: var(--color-primary);
     }
@@ -820,6 +878,226 @@
             height: 160px;
         }
     }
+
+
+        /* Filtro de Categorías */
+    .category-filter-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--shadow-soft);
+        border-top: 4px solid var(--color-accent);
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .category-filter-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .filter-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .filter-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        color: var(--color-primary);
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .filter-title i {
+        color: var(--color-accent);
+        font-size: 1.3rem;
+    }
+
+    .category-buttons-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .category-btn {
+        flex: 1 1 calc(25% - 1rem);
+        min-width: 200px;
+        padding: 1.25rem 1.5rem;
+        background: linear-gradient(135deg, #f9f9f9 0%, #f5f5f5 100%);
+        border: 2px solid transparent;
+        border-radius: 15px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--color-dark);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .category-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(193, 120, 23, 0.1), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .category-btn:hover::before {
+        left: 100%;
+    }
+
+    .category-btn i {
+        font-size: 1.8rem;
+        color: var(--color-accent);
+        transition: all 0.3s ease;
+    }
+
+    .category-btn span:first-of-type {
+        font-size: 1rem;
+        color: var(--color-primary);
+    }
+
+    .category-count {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: var(--color-secondary);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        min-width: 35px;
+    }
+
+    .category-btn:hover {
+        background: linear-gradient(135deg, #fff 0%, #f9f9f9 100%);
+        border-color: var(--color-secondary);
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-soft);
+    }
+
+    .category-btn:hover i {
+        transform: scale(1.2);
+        color: var(--color-primary);
+    }
+
+    .category-btn.active {
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-dark) 100%);
+        border-color: var(--color-accent);
+        color: white;
+        box-shadow: var(--shadow-medium);
+        transform: translateY(-3px);
+    }
+
+    .category-btn.active i {
+        color: var(--color-accent);
+        transform: scale(1.1);
+    }
+
+    .category-btn.active span:first-of-type {
+        color: white;
+    }
+
+    .category-btn.active .category-count {
+        background: var(--color-accent);
+        color: white;
+    }
+
+    /* Mensaje cuando no hay productos */
+    .no-products-category {
+        background: white;
+        border-radius: 15px;
+        padding: 3rem 2rem;
+        text-align: center;
+        box-shadow: var(--shadow-soft);
+        margin-top: 2rem;
+    }
+
+    .no-products-category i {
+        font-size: 3.5rem;
+        color: var(--color-secondary);
+        margin-bottom: 1rem;
+        opacity: 0.7;
+    }
+
+    .no-products-category h5 {
+        color: var(--color-primary);
+        margin-bottom: 0.5rem;
+        font-size: 1.3rem;
+    }
+
+    .no-products-category p {
+        color: #666;
+    }
+
+    /* Animación para ocultar/mostrar productos */
+    .martinez-product-card {
+        transition: all 0.3s ease;
+    }
+
+    .martinez-product-card.hidden {
+        display: none;
+    }
+
+    /* Responsive para el filtro */
+    @media (max-width: 1200px) {
+        .category-btn {
+            flex: 1 1 calc(33.333% - 1rem);
+            min-width: 180px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .category-filter-section {
+            padding: 1.5rem;
+        }
+
+        .filter-title {
+            font-size: 1.2rem;
+        }
+
+        .category-buttons-wrapper {
+            gap: 0.75rem;
+        }
+
+        .category-btn {
+            flex: 1 1 calc(50% - 0.75rem);
+            min-width: 140px;
+            padding: 1rem;
+        }
+
+        .category-btn i {
+            font-size: 1.5rem;
+        }
+
+        .category-btn span:first-of-type {
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .category-btn {
+            flex: 1 1 100%;
+            min-width: auto;
+        }
+    }
     </style>
 </head>
 
@@ -854,28 +1132,67 @@
                         <i class="bi bi-list-check" style="margin-right: 0.3rem;"></i>
                         Mis Reservas
                     </a>
-                    <a href="{{ route('cliente.perfil') }}" class="nav-link">
-                        <i class="bi bi-person" style="margin-right: 0.3rem;"></i>
-                        Mi Perfil
-                    </a>
-                </div>
-
-                <div class="user-info" style="display: flex; align-items: center; gap: 1rem; color: white;">
-                    <div class="user-avatar"
-                        style="width: 35px; height: 35px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem;">
-                        {{ substr(auth()->user()->nombre_completo, 0, 2) }}
-                    </div>
-                    <span class="small">{{ auth()->user()->nombre_completo }}</span>
                 </div>
                 @endif
 
-                <!-- Botón de logout para TODOS los autenticados -->
-                <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-                    @csrf
-                    <button type="submit" class="btn-logout">
-                        Cerrar Sesión
+                <!-- Dropdown de Usuario -->
+                <div class="dropdown">
+                    <button class="btn btn-light d-flex align-items-center gap-2" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="user-avatar">
+                            {{ strtoupper(substr(Auth::user()->nombre, 0, 1) . substr(Auth::user()->apellido_pat ?? Auth::user()->nombre, 0, 1)) }}
+                        </div>
+                        <div class="d-none d-md-block text-start">
+                            <div class="fw-bold small">{{ Auth::user()->nombre_completo }}</div>
+
+                        </div>
+                        <i class="bi bi-chevron-down"></i>
                     </button>
-                </form>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                        <!-- Información del Usuario -->
+                        <li class="user-info-dropdown">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="user-avatar" style="width: 50px; height: 50px; font-size: 1.2rem;">
+                                    {{ strtoupper(substr(Auth::user()->nombre, 0, 1) . substr(Auth::user()->apellido_pat ?? Auth::user()->nombre, 0, 1)) }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ Auth::user()->nombre_completo }}</div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- Opciones del menú -->
+                        <li>
+                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPerfil">
+                                <i class="bi bi-person"></i>
+                                <span>Mi Perfil</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalConfiguracion">
+                                <i class="bi bi-gear"></i>
+                                <span>Configuración</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalAyuda">
+                                <i class="bi bi-question-circle"></i>
+                                <span>Ayuda</span>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}" id="logoutForm">
+                                @csrf
+                                <button type="submit" class="dropdown-item user-dropdown-item text-danger">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    <span>Cerrar Sesión</span>
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+
                 @else
                 <!-- Botones de login y register para usuarios NO autenticados -->
                 <a href="{{ route('login') }}" class="btn btn-secondary">
@@ -899,10 +1216,23 @@
                 <ul class="mobile-menu-list">
                     <li><a href="{{ route('home') }}" class="nav-link">Home</a></li>
                     <li><a href="{{ route('home') }}#productos" class="nav-link">Productos</a></li>
-                    @guest
-                    <li><a href="{{ route('login') }}" class="btn btn-secondary">Iniciar Sesión</a></li>
-                    <li><a href="{{ route('registro') }}" class="btn btn-primary">Registrarse</a></li>
-                    @endguest
+
+                    @auth
+                        @if(auth()->user()->esCliente())
+                        <li><a href="{{ route('cliente.reservar') }}" class="nav-link">Reservar</a></li>
+                        <li><a href="{{ route('cliente.reservaciones') }}" class="nav-link">Mis Reservas</a></li>
+                        @endif
+
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="btn btn-secondary w-100">Cerrar Sesión</button>
+                            </form>
+                        </li>
+                    @else
+                        <li><a href="{{ route('login') }}" class="btn btn-secondary">Iniciar Sesión</a></li>
+                        <li><a href="{{ route('registro') }}" class="btn btn-primary">Registrarse</a></li>
+                    @endauth
                 </ul>
             </div>
         </nav>
@@ -969,87 +1299,301 @@
             @endguest
         </div>
 
-        <!-- Galería de Productos - MÁS COMPACTA -->
+            <!-- Filtro de Categorías -->
+<div class="category-filter-section" style="margin-bottom: 2rem;">
+    <div class="category-filter-container">
+        <div class="filter-header">
+            <h3 class="filter-title">
+                <i class="bi bi-funnel-fill"></i>
+                Filtrar por Categoría
+            </h3>
+        </div>
+
+        <div class="category-buttons-wrapper">
+            <button type="button" class="category-btn active" data-categoria="all" onclick="filtrarPorCategoria('all')">
+                <i class="bi bi-grid-3x3-gap-fill"></i>
+                <span>Todos los Productos</span>
+                <span class="category-count" id="count-all">{{ $productos->count() }}</span>
+            </button>
+
+            @php
+                $categorias = $productos->pluck('categoria')->unique()->filter()->sortBy('nombre');
+            @endphp
+
+            @foreach($categorias as $categoria)
+            <button type="button" class="category-btn" data-categoria="{{ $categoria->id_categoria }}" onclick="filtrarPorCategoria({{ $categoria->id_categoria }})">
+                <i class="bi bi-tag-fill"></i>
+                <span>{{ $categoria->nombre }}</span>
+                <span class="category-count" id="count-{{ $categoria->id_categoria }}">
+                    {{ $productos->where('id_categoria', $categoria->id_categoria)->count() }}
+                </span>
+            </button>
+            @endforeach
+        </div>
+    </div>
+</div>
+        <!-- Galería de Productos -->
         <div id="productos" style="margin-top: 4rem;">
             <h2 class="welcome-title" style="text-align: center; margin-bottom: 2rem;">Nuestros Productos</h2>
 
             @if($productos->count() > 0)
             <div class="martinez-products-grid">
                 @foreach($productos as $producto)
-                <div class="martinez-product-card">
+                <div class="martinez-product-card" data-categoria="{{ $producto->id_categoria }}">
                     @if($producto->stock <= $producto->stock_minimo)
                         <span class="product-badge stock-bajo">
                             <i class="bi bi-exclamation-triangle-fill"></i> Últimas unidades
                         </span>
-                        @elseif($producto->stock < 10) <span class="product-badge popular">
+                        @elseif($producto->stock < 10)
+                        <span class="product-badge popular">
                             <i class="bi bi-star-fill"></i> Popular
-                            </span>
+                        </span>
+                        @else
+                        <span class="product-badge">
+                            <i class="bi bi-check-circle-fill"></i> Disponible
+                        </span>
+                        @endif
+
+                        <div class="martinez-product-image">
+                            @if($producto->imagen)
+                            <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}"
+                                loading="lazy">
                             @else
-                            <span class="product-badge">
-                                <i class="bi bi-check-circle-fill"></i> Disponible
-                            </span>
+                            <div class="no-image">
+                                <i class="bi bi-cup-hot"></i>
+                                <span>{{ $producto->nombre }}</span>
+                            </div>
                             @endif
+                        </div>
 
-                            <div class="martinez-product-image">
-                                @if($producto->imagen)
-                                <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}"
-                                    loading="lazy">
-                                @else
-                                <div class="no-image">
-                                    <i class="bi bi-cup-hot"></i>
-                                    <span>{{ $producto->nombre }}</span>
+                        <div class="martinez-product-info">
+                            <h3 class="martinez-product-title">{{ $producto->nombre }}</h3>
+                            <p class="martinez-product-description">
+                                {{ $producto->descripcion ?: 'Producto de alta calidad con los mejores ingredientes.' }}
+                            </p>
+
+                            <div class="martinez-product-footer">
+                                <div class="martinez-product-price">{{ $producto->precio_formateado }}</div>
+                                <div
+                                    class="product-stock {{ $producto->stock <= $producto->stock_minimo ? 'stock-bajo' : '' }}">
+                                    <i class="bi bi-box-seam stock-icon"></i>
+                                    <span>{{ $producto->stock }} disp.</span>
                                 </div>
-                                @endif
                             </div>
 
-                            <div class="martinez-product-info">
-                                <h3 class="martinez-product-title">{{ $producto->nombre }}</h3>
-                                <p class="martinez-product-description">
-                                    {{ $producto->descripcion ?: 'Producto de alta calidad con los mejores ingredientes.' }}
-                                </p>
-
-                                <div class="martinez-product-footer">
-                                    <div class="martinez-product-price">{{ $producto->precio_formateado }}</div>
-                                    <div
-                                        class="product-stock {{ $producto->stock <= $producto->stock_minimo ? 'stock-bajo' : '' }}">
-                                        <i class="bi bi-box-seam stock-icon"></i>
-                                        <span>{{ $producto->stock }} disp.</span>
-                                    </div>
-                                </div>
-
-                                @if($producto->categoria)
-                                <div class="product-category">
-                                    <span class="category-badge">{{ $producto->categoria->nombre }}</span>
-                                </div>
-                                @endif
+                            @if($producto->categoria)
+                            <div class="product-category">
+                                <span class="category-badge">{{ $producto->categoria->nombre }}</span>
                             </div>
+                            @endif
+                        </div>
                 </div>
                 @endforeach
             </div>
             @else
-            <div class="no-products">
-                <i class="bi bi-box-seam"></i>
-                <h5>No hay productos disponibles</h5>
-                <p>Próximamente tendremos nuevos productos para ti.</p>
+            <div id="noProductsMessage" class="no-products-category" style="display: none;">
+                <i class="bi bi-inbox"></i>
+                <h5>No hay productos en esta categoría</h5>
+                <p>Intenta seleccionar otra categoría o ver todos los productos.</p>
+                <button class="btn btn-primary" style="margin-top: 1rem;" onclick="filtrarPorCategoria('all')">
+                    Ver Todos los Productos
+                </button>
             </div>
             @endif
         </div>
     </main>
 
-    <!-- JavaScript para Mobile Menu -->
-    <script>
-    (function() {
-        var btn = document.getElementById('menuToggle');
-        var menu = document.getElementById('mobileMenu');
-        if (!btn || !menu) return;
+    @auth
+    <!-- Modales -->
+    <div class="modal fade" id="modalPerfil" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-black text-white">
+                    <h5 class="modal-title"><i class="bi bi-person-circle me-2"></i>Mi Perfil</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-person me-1 text-primary"></i>Nombre completo:
+                            </label>
+                            <div class="form-control bg-light">{{ Auth::user()->nombre_completo }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-at me-1 text-info"></i>Nombre de usuario:
+                            </label>
+                            <div class="form-control bg-light">{{ Auth::user()->nombre_usuario }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-envelope me-1 text-success"></i>Email:
+                            </label>
+                            <div class="form-control bg-light">{{ Auth::user()->email }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-telephone me-1 text-warning"></i>Teléfono:
+                            </label>
+                            <div class="form-control bg-light">{{ Auth::user()->telefono ?? '—' }}</div>
+                        </div>
 
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-toggle-on me-1 text-secondary"></i>Estado:
+                            </label>
+                            <div class="form-control bg-light">
+                                @if(Auth::user()->estado)
+                                    <span class="badge bg-success">Activo</span>
+                                @else
+                                    <span class="badge bg-danger">Inactivo</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalConfiguracion" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-black text-white">
+                    <h5 class="modal-title"><i class="bi bi-gear me-2"></i>Configuración</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    @livewire('perfil-usuario')
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalAyuda" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-black text-white">
+                    <h5 class="modal-title"><i class="bi bi-question-circle me-2"></i>Centro de Ayuda</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Bienvenido a El Rincón Sabrosito.</strong></p>
+                    <p>Aquí puedes explorar nuestros productos, realizar reservas y gestionar tu perfil.</p>
+                    <ul>
+                        <li><strong>Mi Perfil:</strong> Ver tus datos personales y roles asignados.</li>
+                        <li><strong>Configuración:</strong> Cambiar tu usuario o contraseña.</li>
+                        <li><strong>Reservar:</strong> Realiza reservas de nuestros productos.</li>
+                        <li><strong>Mis Reservas:</strong> Consulta el estado de tus reservaciones.</li>
+                    </ul>
+                    <hr>
+                    <h6>Soporte:</h6>
+                    <p>Si tienes alguna consulta o inconveniente, contáctanos:</p>
+                    <ul>
+                        <li><i class="bi bi-envelope"></i> contacto@rinconsabrosito.com</li>
+                        <li><i class="bi bi-telephone"></i> +591 4 1234567</li>
+                        <li><i class="bi bi-geo-alt"></i> Potosí, Bolivia</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endauth
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript para Mobile Menu -->
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JavaScript para Mobile Menu y Filtros -->
+<script>
+(function() {
+    // Mobile Menu
+    var btn = document.getElementById('menuToggle');
+    var menu = document.getElementById('mobileMenu');
+    if (btn && menu) {
         btn.addEventListener('click', function() {
             menu.classList.toggle('show');
             var isExpanded = menu.classList.contains('show');
             btn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
         });
-    })();
-    </script>
+    }
+})();
+
+// Función para filtrar productos por categoría
+function filtrarPorCategoria(categoriaId) {
+    // Obtener todas las tarjetas de productos
+    const productos = document.querySelectorAll('.martinez-product-card');
+    const botones = document.querySelectorAll('.category-btn');
+    const noProductsMessage = document.getElementById('noProductsMessage');
+    let productosVisibles = 0;
+
+    // Remover clase active de todos los botones
+    botones.forEach(btn => btn.classList.remove('active'));
+
+    // Agregar clase active al botón clickeado
+    const botonActivo = document.querySelector(`[data-categoria="${categoriaId}"]`);
+    if (botonActivo) {
+        botonActivo.classList.add('active');
+    }
+
+    // Filtrar productos
+    productos.forEach(producto => {
+        const productoCategoria = producto.getAttribute('data-categoria');
+
+        if (categoriaId === 'all' || productoCategoria === String(categoriaId)) {
+            producto.classList.remove('hidden');
+            producto.style.display = '';
+            productosVisibles++;
+
+            // Animación de entrada
+            setTimeout(() => {
+                producto.style.opacity = '1';
+                producto.style.transform = 'translateY(0)';
+            }, 50);
+        } else {
+            producto.classList.add('hidden');
+            producto.style.opacity = '0';
+            producto.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                producto.style.display = 'none';
+            }, 300);
+        }
+    });
+
+    // Mostrar/ocultar mensaje de "no hay productos"
+    if (productosVisibles === 0) {
+        noProductsMessage.style.display = 'block';
+        noProductsMessage.style.animation = 'fadeInUp 0.5s ease-out';
+    } else {
+        noProductsMessage.style.display = 'none';
+    }
+
+    // Scroll suave a la sección de productos
+    const productosSection = document.getElementById('productos');
+    if (productosSection && categoriaId !== 'all') {
+        setTimeout(() => {
+            productosSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+}
+
+// Inicializar los estilos de transición
+document.addEventListener('DOMContentLoaded', function() {
+    const productos = document.querySelectorAll('.martinez-product-card');
+    productos.forEach(producto => {
+        producto.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    });
+});
+</script>
 </body>
 
 </html>
