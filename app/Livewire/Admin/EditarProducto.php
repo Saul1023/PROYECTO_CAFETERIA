@@ -91,7 +91,7 @@ class EditarProducto extends Component
             Producto::find($this->productoId)->update($data);
 
             session()->flash('success', 'Producto actualizado correctamente.');
-            return redirect()->route('admin.productos');
+            return redirect()->route('productos');
         } catch (\Exception $e) {
             session()->flash('error', 'Error al actualizar el producto: ' . $e->getMessage());
         }

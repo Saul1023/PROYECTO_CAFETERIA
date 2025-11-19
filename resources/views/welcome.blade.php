@@ -843,7 +843,33 @@
 
             <div class="auth-section">
                 @auth
-                <!-- Solo botón de logout para usuarios autenticados -->
+                <!-- MENÚ PARA CLIENTES AUTENTICADOS -->
+                @if(auth()->user()->esCliente())
+                <div class="nav-links" style="display: flex; gap: 1.5rem; margin-right: 1rem;">
+                    <a href="{{ route('cliente.reservar') }}" class="nav-link">
+                        <i class="bi bi-calendar-plus" style="margin-right: 0.3rem;"></i>
+                        Reservar
+                    </a>
+                    <a href="{{ route('cliente.reservaciones') }}" class="nav-link">
+                        <i class="bi bi-list-check" style="margin-right: 0.3rem;"></i>
+                        Mis Reservas
+                    </a>
+                    <a href="{{ route('cliente.perfil') }}" class="nav-link">
+                        <i class="bi bi-person" style="margin-right: 0.3rem;"></i>
+                        Mi Perfil
+                    </a>
+                </div>
+
+                <div class="user-info" style="display: flex; align-items: center; gap: 1rem; color: white;">
+                    <div class="user-avatar"
+                        style="width: 35px; height: 35px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem;">
+                        {{ substr(auth()->user()->nombre_completo, 0, 2) }}
+                    </div>
+                    <span class="small">{{ auth()->user()->nombre_completo }}</span>
+                </div>
+                @endif
+
+                <!-- Botón de logout para TODOS los autenticados -->
                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                     @csrf
                     <button type="submit" class="btn-logout">
@@ -851,7 +877,7 @@
                     </button>
                 </form>
                 @else
-                <!-- Botones de login y register para usuarios no autenticados -->
+                <!-- Botones de login y register para usuarios NO autenticados -->
                 <a href="{{ route('login') }}" class="btn btn-secondary">
                     Iniciar Sesión
                 </a>

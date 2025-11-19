@@ -9,7 +9,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-sm bg-gradient"
-                 style="background: linear-gradient(135deg, #6f4e37 0%, #d4a574 100%);">
+                style="background: linear-gradient(135deg, #6f4e37 0%, #d4a574 100%);">
                 <div class="card-body text-white p-4">
                     <h2 class="mb-2">
                         <i class="bi bi-emoji-smile"></i>

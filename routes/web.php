@@ -102,22 +102,28 @@ Route::middleware(['auth', 'role:ADMINISTRADOR'])->group(function () {
 
 Route::middleware(['auth', 'role:CLIENTE'])->prefix('cliente')->name('cliente.')->group(function () {
 
-    // Home del cliente (redirige al welcome con productos)
+    // Home del cliente (usa la vista pública con productos)
     Route::get('/home', function () {
-        return redirect()->route('home');
+        $productos = Producto::with('categoria')
+            ->where('estado', true)
+            ->where('stock', '>', 0)
+            ->orderBy('nombre')
+            ->get();
+
+        return view('welcome', compact('productos'));
     })->name('home');
 
-    // Mis Reservaciones
+    // Mis Reservaciones (usa layout admin pero con contenido simple)
     Route::get('/mis-reservaciones', function () {
         return view('cliente.reservaciones');
     })->name('reservaciones');
 
-    // Hacer Reservación
+    // Hacer Reservación (usa layout admin pero con formulario simple)
     Route::get('/reservar', function () {
         return view('cliente.reservar');
     })->name('reservar');
 
-    // Mi Perfil
+    // Mi Perfil (usa layout admin pero con perfil simple)
     Route::get('/perfil', function () {
         return view('cliente.perfil');
     })->name('perfil');
