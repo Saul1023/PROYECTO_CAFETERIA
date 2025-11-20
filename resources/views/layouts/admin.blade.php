@@ -304,24 +304,29 @@
                             </div>
                         </li>
                         <li>
-                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPerfil">
+                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal"
+                                data-bs-target="#modalPerfil">
                                 <i class="bi bi-person"></i>
                                 <span>Mi Perfil</span>
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalConfiguracion">
+                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal"
+                                data-bs-target="#modalConfiguracion">
                                 <i class="bi bi-gear"></i>
                                 <span>Configuración</span>
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalAyuda">
+                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal"
+                                data-bs-target="#modalAyuda">
                                 <i class="bi bi-question-circle"></i>
                                 <span>Ayuda</span>
                             </a>
                         </li>
-                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li>
                             <form method="POST" action="{{ route('logout') }}" id="logoutForm">
                                 @csrf
@@ -361,7 +366,7 @@
         </main>
     </div>
 
-      @auth
+    @auth
     <!-- Modales -->
     <div class="modal fade" id="modalPerfil" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -403,9 +408,9 @@
                             </label>
                             <div class="form-control bg-light">
                                 @if(Auth::user()->estado)
-                                    <span class="badge bg-success">Activo</span>
+                                <span class="badge bg-success">Activo</span>
                                 @else
-                                    <span class="badge bg-danger">Inactivo</span>
+                                <span class="badge bg-danger">Inactivo</span>
                                 @endif
                             </div>
                         </div>

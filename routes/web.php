@@ -37,7 +37,26 @@ Route::post('/logout', function () {
     request()->session()->regenerateToken();
     return redirect()->route('home')->with('success', 'Sesión cerrada exitosamente');
 })->middleware('auth')->name('logout');
+// Ruta para descargar comprobante (accesible para ADMIN y EMPLEADO)
+Route::get('/descargar-comprobante/{venta}', function ($numeroVenta) {
+    try {
+        // Buscar el archivo PDF
+        $files = glob(storage_path("app/comprobantes/comprobante_{$numeroVenta}_*.pdf"));
 
+        if (empty($files)) {
+            abort(404, 'Comprobante no encontrado');
+        }
+
+        $filePath = $files[0];
+
+        return response()->download($filePath, "comprobante_{$numeroVenta}.pdf", [
+            'Content-Type' => 'application/pdf',
+        ]);
+
+    } catch (\Exception $e) {
+        abort(404, 'Error al descargar comprobante: ' . $e->getMessage());
+    }
+})->middleware(['auth', 'role:ADMINISTRADOR,EMPLEADO'])->name('descargar.comprobante');
 /*
 |--------------------------------------------------------------------------
 | Rutas de ADMINISTRADOR y EMPLEADO (Dashboard Unificado)
@@ -47,9 +66,7 @@ Route::post('/logout', function () {
 Route::middleware(['auth', 'role:ADMINISTRADOR,EMPLEADO'])->group(function () {
 
     // Dashboard (accesible para ambos roles)
-    Route::get('/dashboard', function () {
-        return view('layouts.admin');
-    })->name('dashboard');
+Route::get('/dashboard', \App\Livewire\Admin\DashboardVista::class)->name('dashboard');
 
     // Gestión de Productos (ambos pueden gestionar)
     Route::get('/productos', \App\Livewire\Admin\ListarProducto::class)->name('productos');

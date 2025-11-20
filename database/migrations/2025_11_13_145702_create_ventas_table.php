@@ -17,8 +17,12 @@ return new class extends Migration
             $table->foreignId('id_usuario')
                 ->constrained('usuarios', 'id_usuario')
                 ->onDelete('restrict');
+            $table->foreignId('id_cliente') // NUEVO: Campo para el cliente
+                ->nullable()
+                ->constrained('usuarios', 'id_usuario')
+                ->onDelete('restrict');
             $table->foreignId('id_reserva')
-                ->nullable() // CAMBIO: Hacer nullable
+                ->nullable()
                 ->constrained('reservaciones', 'id_reservacion')
                 ->onDelete('restrict');
             $table->decimal('subtotal', 10, 2);

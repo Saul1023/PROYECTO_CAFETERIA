@@ -131,17 +131,6 @@ class DetallePedido extends Model
                 $model->subtotal = ($model->cantidad * $model->precio_unitario) - $model->descuento;
             }
         });
-
-        static::created(function ($model) {
-            // Actualizar stock del producto cuando se crea un detalle
-            $model->actualizarStockProducto();
-
-            // Recalcular total del pedido
-            if ($model->pedido) {
-                $model->pedido->calcularTotales();
-            }
-        });
-
         static::updated(function ($model) {
             // Recalcular total del pedido si cambia cantidad o precio
             if ($model->pedido && ($model->isDirty('cantidad') || $model->isDirty('precio_unitario') || $model->isDirty('descuento'))) {

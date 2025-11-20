@@ -13,7 +13,7 @@
                 <div class="card-body text-white p-4">
                     <h2 class="mb-2">
                         <i class="bi bi-emoji-smile"></i>
-                        ¡Bienvenido, {{ auth()->user()->nombre_completo }}!
+                        ¡Bienvenido luis, {{ auth()->user()->nombre_completo }}!
                     </h2>
                     <p class="mb-0 opacity-75">
                         <i class="bi bi-shield-check"></i>
