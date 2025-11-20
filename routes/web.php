@@ -66,9 +66,7 @@ Route::get('/descargar-comprobante/{venta}', function ($numeroVenta) {
 Route::middleware(['auth', 'role:ADMINISTRADOR,EMPLEADO'])->group(function () {
 
     // Dashboard (accesible para ambos roles)
-    Route::get('/dashboard', function () {
-        return view('layouts.admin');
-    })->name('dashboard');
+Route::get('/dashboard', \App\Livewire\Admin\DashboardVista::class)->name('dashboard');
 
     // Gestión de Productos (ambos pueden gestionar)
     Route::get('/productos', \App\Livewire\Admin\ListarProducto::class)->name('productos');
