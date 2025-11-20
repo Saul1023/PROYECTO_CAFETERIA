@@ -13,6 +13,7 @@ class Venta extends Model
     protected $fillable = [
         'numero_venta',
         'id_usuario',
+        'id_cliente',
         'id_reserva',
         'subtotal',
         'descuento',
@@ -65,5 +66,8 @@ class Venta extends Model
     public function scopePorFecha($query, $fecha)
     {
         return $query->whereDate('fecha_venta', $fecha);
+    }
+    public function scopePorCliente($query,$clienteId){
+        return $query->where('id_cliente',$clienteId);
     }
 }
