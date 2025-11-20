@@ -71,6 +71,9 @@ Route::middleware(['auth', 'role:ADMINISTRADOR,EMPLEADO'])->group(function () {
 
     // Reservaciones (ambos pueden gestionar)
     Route::get('/reservaciones', \App\Livewire\Admin\ListarReservacion::class)->name('reservaciones');
+    // Reportes (ambos puedes gesionar)
+    Route::get('/reportes', \App\Livewire\Admin\Reportes::class)->name('reportes');
+
 });
 
 /*
@@ -89,10 +92,6 @@ Route::middleware(['auth', 'role:ADMINISTRADOR'])->group(function () {
     Route::get('/promociones', \App\Livewire\Admin\ListarPromocion::class)->name('promociones');
     Route::get('/promociones/crear', \App\Livewire\Admin\CrearPromocion::class)->name('promociones.crear');
 
-    // Reportes (SOLO ADMINISTRADOR)
-    Route::get('/reportes', function () {
-        return view('dashboard.reportes.index');
-    })->name('reportes');
 });
 
 /*

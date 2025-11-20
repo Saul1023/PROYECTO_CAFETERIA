@@ -7,7 +7,7 @@
                     <h1 class="h2 text-brown mb-1">Crear Nueva Promoción</h1>
                     <p class="text-muted mb-0">Completa el formulario para crear una nueva promoción</p>
                 </div>
-                <a href="{{ route('admin.promociones') }}" class="btn btn-outline-secondary">
+                <a href="{{ route('promociones') }}" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left me-2"></i>
                     Volver a Promociones
                 </a>
@@ -240,7 +240,7 @@
                                     </button>
 
                                     <div class="d-flex gap-2">
-                                        <a href="{{ route('admin.promociones') }}" class="btn btn-outline-secondary">
+                                        <a href="{{ route('promociones') }}" class="btn btn-outline-secondary">
                                             <i class="bi bi-x-circle me-2"></i>
                                             Cancelar
                                         </a>
