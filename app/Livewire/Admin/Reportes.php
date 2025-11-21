@@ -20,7 +20,7 @@ class Reportes extends Component
     public $periodoReporte = 'diario';
     public $fechaInicio;
     public $fechaFin;
-    
+
     // Datos para los reportes
     public $reporteData = [];
     public $estadisticas = [];
@@ -99,7 +99,7 @@ class Reportes extends Component
                 ->whereBetween('fecha_creacion', [$this->fechaInicio, $this->fechaFin . ' 23:59:59'])
                 ->groupBy('id_rol')
                 ->with('rol')
-                ->get() 
+                ->get()
         ];
     }
 
@@ -126,9 +126,8 @@ class Reportes extends Component
 
     private function generarReporteCategorias()
     {
-        $this->reporteData = Categoria::withCount('productos')
-            ->whereBetween('fecha_creacion', [$this->fechaInicio, $this->fechaFin . ' 23:59:59'])
-            ->get();
+        // Quitar el filtro de fecha para mostrar todas las categorías
+        $this->reporteData = Categoria::withCount('productos')->get();
 
         $this->estadisticas = [
             'total' => Categoria::count(),
@@ -264,6 +263,8 @@ class Reportes extends Component
         'mesas' => 'pdf.reportes.mesas',
         'reservaciones' => 'pdf.reportes.reservaciones',
         'productos' => 'pdf.reportes.productos',
+        'categorias' => 'pdf.reportes.categorias',
+        'promociones' => 'pdf.reportes.promociones',
         default => 'pdf.reportes.general'
     };
 

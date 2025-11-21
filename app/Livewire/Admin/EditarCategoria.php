@@ -67,7 +67,7 @@ class EditarCategoria extends Component
             session()->flash('success', 'Categoría actualizada correctamente.');
 
             // Redirigir a la lista de categorías
-            return redirect()->route('admin.categorias');
+            return redirect()->route('categorias');
         } catch (\Exception $e) {
             Log::error('Error al actualizar categoría: ' . $e->getMessage());
             session()->flash('error', 'Error al actualizar la categoría: ' . $e->getMessage());
@@ -76,7 +76,7 @@ class EditarCategoria extends Component
 
     public function cancelar()
     {
-        return redirect()->route('admin.categorias');
+        return redirect()->route('categorias');
     }
 
     public function render()

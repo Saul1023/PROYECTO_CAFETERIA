@@ -2,14 +2,11 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\DetalleVenta;
 use App\Models\Mesa;
 use App\Models\Producto;
 use App\Models\Reservacion;
 use App\Models\Usuario;
 use App\Models\Venta;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -64,11 +61,26 @@ class DashboardVista extends Component
     protected function cargarVentasHoy()
     {
         try {
-            $ventasHoy = Venta::hoy()->completadas()->get();
+            // Consulta más robusta
+            $ventasHoy = Venta::with(['detalles.producto.categoria'])
+                ->whereDate('fecha_venta', now()->toDateString())
+                ->where('estado_venta', 'completada')
+                ->get();
+
+            Log::info('Ventas hoy - Consulta ejecutada');
+            Log::info('Ventas encontradas: ' . $ventasHoy->count());
+            Log::info('SQL: ' .
+                Venta::with(['detalles.producto.categoria'])
+                    ->whereDate('fecha_venta', now()->toDateString())
+                    ->where('estado_venta', 'completada')
+                    ->toSql()
+            );
+
             $this->ventasHoy = [
                 'cantidad' => $ventasHoy->count(),
                 'monto' => $ventasHoy->sum('total')
             ];
+
         } catch (\Exception $e) {
             Log::error('Error cargando ventas hoy: ' . $e->getMessage());
             $this->ventasHoy = ['cantidad' => 0, 'monto' => 0];
@@ -78,7 +90,9 @@ class DashboardVista extends Component
     protected function cargarReservacionesHoy()
     {
         try {
-            $this->totalReservaciones = Reservacion::hoy()->count();
+            // Verificar la estructura de tu modelo Reservacion
+            $this->totalReservaciones = Reservacion::whereDate('fecha_reservacion', today())->count();
+            Log::info('Reservaciones hoy: ' . $this->totalReservaciones);
         } catch (\Exception $e) {
             Log::error('Error cargando reservaciones: ' . $e->getMessage());
             $this->totalReservaciones = 0;
@@ -88,11 +102,13 @@ class DashboardVista extends Component
     protected function cargarProductosMasVendidos()
     {
         try {
-            // Obtener ventas de hoy completadas con detalles
+            // Reemplazar scopes por consulta directa
             $ventasHoy = Venta::with(['detalles.producto.categoria'])
-                ->hoy()
-                ->completadas()
+                ->whereDate('fecha_venta', now()->toDateString())
+                ->where('estado_venta', 'completada')
                 ->get();
+
+            Log::info('Ventas para productos más vendidos: ' . $ventasHoy->count());
 
             $productosVendidos = [];
 
@@ -119,7 +135,7 @@ class DashboardVista extends Component
                 }
             }
 
-            // Ordenar por cantidad vendida y tomar top 5
+            // Ordenar y tomar top 5
             usort($productosVendidos, function($a, $b) {
                 return $b['total_vendido'] - $a['total_vendido'];
             });
@@ -206,6 +222,36 @@ class DashboardVista extends Component
         }
     }
 
+    // Método para debugging
+    public function debugDatos()
+    {
+        try {
+            // Verificar ventas en la base de datos
+            $ventasHoyDB = Venta::whereDate('fecha_venta', today())->get();
+            $ventasCompletadasHoyDB = Venta::hoy()->completadas()->get();
+
+            Log::info('=== DEBUG DASHBOARD ===');
+            Log::info('Total ventas hoy en BD: ' . $ventasHoyDB->count());
+            Log::info('Ventas completadas hoy en BD: ' . $ventasCompletadasHoyDB->count());
+            Log::info('Estado de ventas hoy: ' . $ventasHoyDB->pluck('estado_venta'));
+
+            return [
+                'total_ventas_hoy' => $ventasHoyDB->count(),
+                'ventas_completadas_hoy' => $ventasCompletadasHoyDB->count(),
+                'estados_ventas' => $ventasHoyDB->pluck('estado_venta'),
+                'datos_cargados' => [
+                    'ventas_hoy' => $this->ventasHoy,
+                    'productos_mas_vendidos_count' => count($this->productosMasVendidos),
+                    'reservaciones' => $this->totalReservaciones
+                ]
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Error en debug: ' . $e->getMessage());
+            return ['error' => $e->getMessage()];
+        }
+    }
+
     // Método para recargar datos
     public function recargar()
     {
@@ -267,6 +313,45 @@ class DashboardVista extends Component
         return null;
     }
 
+    public function debugBaseDeDatos()
+    {
+        try {
+            Log::info('=== DEBUG BASE DE DATOS ===');
+
+            // Verificar ventas en la base de datos
+            $ventasHoy = Venta::whereDate('fecha_venta', now()->toDateString())->get();
+            $ventasCompletadas = Venta::whereDate('fecha_venta', now()->toDateString())
+                                    ->where('estado_venta', 'completada')
+                                    ->get();
+
+            Log::info('Total ventas hoy: ' . $ventasHoy->count());
+            Log::info('Ventas completadas hoy: ' . $ventasCompletadas->count());
+
+            // Verificar estructura de ventas
+            foreach ($ventasHoy as $venta) {
+                Log::info("Venta ID: {$venta->id_venta}, Estado: {$venta->estado_venta}, Fecha: {$venta->fecha_venta}, Total: {$venta->total}");
+            }
+
+            // Verificar productos
+            $productos = Producto::activos()->count();
+            Log::info('Productos activos: ' . $productos);
+
+            // Verificar mesas
+            $mesas = Mesa::count();
+            Log::info('Total mesas: ' . $mesas);
+
+            return [
+                'ventas_hoy_total' => $ventasHoy->count(),
+                'ventas_completadas' => $ventasCompletadas->count(),
+                'productos_activos' => $productos,
+                'total_mesas' => $mesas
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Error en debug BD: ' . $e->getMessage());
+            return ['error' => $e->getMessage()];
+        }
+    }
     public function render()
     {
         return view('livewire.admin.dashboard-vista')

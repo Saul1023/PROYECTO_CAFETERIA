@@ -20,7 +20,8 @@ class Venta extends Model
         'total',
         'metodo_pago',
         'estado_venta',
-        'observaciones'
+        'observaciones',
+        'fecha_venta'
     ];
 
     protected $casts = [
