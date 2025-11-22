@@ -1,9 +1,24 @@
+<div>
 <div class="container-fluid p-4">
     <div class="row">
         <div class="col-12">
+            <!-- Mensajes Flash -->
+            @if (session()->has('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
+            @if (session()->has('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
             <!-- Header -->
-            <div
-                class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
                 <div class="mb-3 mb-md-0">
                     <h1 class="h2 text-brown mb-1">Gestión de Reservaciones</h1>
                     <p class="text-muted mb-0">Administra las reservaciones de mesas</p>
@@ -25,7 +40,7 @@
                                 <span class="input-group-text">
                                     <i class="bi bi-search"></i>
                                 </span>
-                                <input type="text" wire:model.live="search" placeholder="Buscar por mesa, cliente..."
+                                <input type="text" wire:model.live="search" placeholder="Buscar por mesa, cliente, código..."
                                     class="form-control">
                             </div>
                         </div>
@@ -69,6 +84,7 @@
                                     <th>Cliente</th>
                                     <th>Fecha y Hora</th>
                                     <th>Personas</th>
+                                    <th>Monto</th>
                                     <th>Estado</th>
                                     <th class="text-center">Acciones</th>
                                 </tr>
@@ -79,9 +95,11 @@
                                     <td class="ps-4">
                                         <div>
                                             <strong class="d-block">#{{ $reservacion->id_reservacion }}</strong>
+                                            @if($reservacion->codigo_qr)
+                                                <small class="badge bg-secondary">{{ $reservacion->codigo_qr }}</small>
+                                            @endif
                                             @if($reservacion->observaciones)
-                                            <small
-                                                class="text-muted">{{ Str::limit($reservacion->observaciones, 30) }}</small>
+                                            <small class="text-muted d-block">{{ Str::limit($reservacion->observaciones, 30) }}</small>
                                             @endif
                                         </div>
                                     </td>
@@ -106,25 +124,28 @@
                                     <td>
                                         <div class="d-flex flex-column">
                                             <strong>{{ $reservacion->fecha_reservacion->format('d/m/Y') }}</strong>
-                                            <small
-                                                class="text-muted">{{ $reservacion->hora_reservacion->format('H:i') }}
-                                                hrs</small>
+                                            <small class="text-muted">
+                                                {{ $reservacion->hora_reservacion->format('H:i') }} hrs
+                                            </small>
                                         </div>
                                     </td>
                                     <td>
                                         <span class="badge bg-secondary">{{ $reservacion->numero_personas }}</span>
                                     </td>
                                     <td>
+                                        <strong>Bs. {{ number_format($reservacion->monto_pago, 2) }}</strong>
+                                    </td>
+                                    <td>
                                         @php
                                         $estadoColors = [
-                                        'pendiente' => 'warning',
-                                        'confirmada' => 'success',
-                                        'completada' => 'info',
-                                        'cancelada' => 'danger',
-                                        'no_asistio' => 'dark'
+                                            'pendiente' => 'warning',
+                                            'confirmada' => 'success',
+                                            'completada' => 'info',
+                                            'cancelada' => 'danger',
+                                            'no_asistio' => 'dark'
                                         ];
                                         @endphp
-                                        <span class="badge bg-{{ $estadoColors[$reservacion->estado] }}">
+                                        <span class="badge bg-{{ $estadoColors[$reservacion->estado] ?? 'secondary' }}">
                                             {{ ucfirst($reservacion->estado) }}
                                         </span>
                                     </td>
@@ -139,23 +160,22 @@
                                                 </button>
                                                 <ul class="dropdown-menu">
                                                     <li><a class="dropdown-item" href="#"
-                                                            wire:click="cambiarEstado({{ $reservacion->id_reservacion }}, 'pendiente')">Pendiente</a>
+                                                            wire:click.prevent="cambiarEstado({{ $reservacion->id_reservacion }}, 'pendiente')">Pendiente</a>
                                                     </li>
                                                     <li><a class="dropdown-item" href="#"
-                                                            wire:click="cambiarEstado({{ $reservacion->id_reservacion }}, 'confirmada')">Confirmada</a>
+                                                            wire:click.prevent="cambiarEstado({{ $reservacion->id_reservacion }}, 'confirmada')">Confirmada</a>
                                                     </li>
                                                     <li><a class="dropdown-item" href="#"
-                                                            wire:click="cambiarEstado({{ $reservacion->id_reservacion }}, 'completada')">Completada</a>
+                                                            wire:click.prevent="cambiarEstado({{ $reservacion->id_reservacion }}, 'completada')">Completada</a>
                                                     </li>
                                                     <li>
                                                         <hr class="dropdown-divider">
                                                     </li>
                                                     <li><a class="dropdown-item text-danger" href="#"
-                                                            wire:click="cambiarEstado({{ $reservacion->id_reservacion }}, 'cancelada')">Cancelar</a>
+                                                            wire:click.prevent="cambiarEstado({{ $reservacion->id_reservacion }}, 'cancelada')">Cancelar</a>
                                                     </li>
                                                     <li><a class="dropdown-item text-dark" href="#"
-                                                            wire:click="cambiarEstado({{ $reservacion->id_reservacion }}, 'no_asistio')">No
-                                                            Asistió</a></li>
+                                                            wire:click.prevent="cambiarEstado({{ $reservacion->id_reservacion }}, 'no_asistio')">No Asistió</a></li>
                                                 </ul>
                                             </div>
 
@@ -174,7 +194,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-5">
+                                    <td colspan="8" class="text-center py-5">
                                         <div class="text-muted">
                                             <i class="bi bi-calendar-check display-4 d-block mb-3"></i>
                                             <h5>No se encontraron reservaciones</h5>
@@ -201,7 +221,7 @@
     <!-- Modal de Crear/Editar Reservación -->
     @if($showModal)
     <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5)" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
@@ -211,13 +231,81 @@
                     <button type="button" wire:click="closeModal" class="btn-close"></button>
                 </div>
                 <div class="modal-body">
-                    <form wire:submit="saveReservacion">
+                    <form wire:submit.prevent="saveReservacion">
                         <div class="row g-3">
-                            <!-- Mesa -->
+                            <!-- Fecha y Número de Personas (para verificar disponibilidad) -->
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control @error('fecha_reservacion') is-invalid @enderror"
+                                    wire:model.live="fecha_reservacion" min="{{ date('Y-m-d') }}">
+                                @error('fecha_reservacion')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Número de Personas <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control @error('numero_personas') is-invalid @enderror"
+                                    wire:model.live="numero_personas" min="1" max="20" placeholder="Ej: 4">
+                                @error('numero_personas')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- Mostrar disponibilidad -->
+                            @if($mostrarDisponibilidad && !$isEditing)
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    <strong>Mesas Disponibles</strong> - Haz clic en un horario para seleccionar
+                                </div>
+
+                                @if(count($mesasDisponibles) > 0)
+                                    <div class="row g-3">
+                                        @foreach($mesasDisponibles as $disponible)
+                                        <div class="col-md-6">
+                                            <div class="card border-primary">
+                                                <div class="card-header bg-primary text-white">
+                                                    <h6 class="mb-0">
+                                                        <i class="bi bi-table me-2"></i>
+                                                        Mesa {{ $disponible['mesa']->numero_mesa }}
+                                                        <small>(Capacidad: {{ $disponible['mesa']->capacidad }} personas - {{ $disponible['mesa']->ubicacion }})</small>
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p class="text-muted small mb-2">
+                                                        <i class="bi bi-clock me-1"></i>Horarios disponibles:
+                                                    </p>
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        @foreach($disponible['horarios'] as $horario)
+                                                        <button type="button"
+                                                            wire:click="seleccionarMesaHorario({{ $disponible['mesa']->id_mesa }}, '{{ $horario }}')"
+                                                            class="btn btn-sm btn-outline-success">
+                                                            <i class="bi bi-check-circle me-1"></i>{{ $horario }}
+                                                        </button>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-triangle me-2"></i>
+                                        No hay mesas disponibles para la fecha y número de personas seleccionados.
+                                    </div>
+                                @endif
+                            </div>
+                            @endif
+
+                            <!-- Mesa y Hora (se llenan automáticamente al seleccionar) -->
                             <div class="col-md-6">
                                 <label class="form-label">Mesa <span class="text-danger">*</span></label>
-                                <select class="form-select @error('id_mesa') is-invalid @enderror" wire:model="id_mesa">
-                                    <option value="">Seleccionar mesa...</option>
+                                <select class="form-select @error('id_mesa') is-invalid @enderror"
+                                    wire:model="id_mesa"
+                                    {{ !$isEditing ? 'disabled' : '' }}>
+                                    <option value="">{{ !$isEditing ? 'Selecciona un horario disponible arriba' : 'Seleccionar mesa...' }}</option>
                                     @foreach($mesas as $mesa)
                                     <option value="{{ $mesa->id_mesa }}">
                                         Mesa {{ $mesa->numero_mesa }} ({{ $mesa->capacidad }} personas) -
@@ -230,6 +318,32 @@
                                 @enderror
                             </div>
 
+                            <div class="col-md-6">
+                                <label class="form-label">Hora <span class="text-danger">*</span></label>
+                                @if($isEditing)
+                                    <select class="form-select @error('hora_reservacion') is-invalid @enderror"
+                                        wire:model="hora_reservacion">
+                                        <option value="">Seleccionar horario...</option>
+                                        <option value="08:00">8:00 AM</option>
+                                        <option value="10:00">10:00 AM</option>
+                                        <option value="12:00">12:00 PM</option>
+                                        <option value="14:00">2:00 PM</option>
+                                        <option value="16:00">4:00 PM</option>
+                                        <option value="18:00">6:00 PM</option>
+                                        <option value="20:00">8:00 PM</option>
+                                    </select>
+                                @else
+                                    <input type="text" class="form-control @error('hora_reservacion') is-invalid @enderror"
+                                        wire:model="hora_reservacion"
+                                        readonly
+                                        placeholder="Selecciona un horario disponible arriba">
+                                @endif
+                                <small class="text-muted">Horarios disponibles: 8:00 AM - 8:00 PM (cada 2 horas)</small>
+                                @error('hora_reservacion')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <!-- Cliente -->
                             <div class="col-md-6">
                                 <label class="form-label">Cliente</label>
@@ -238,7 +352,6 @@
                                     <option value="">Seleccionar cliente...</option>
                                     @foreach($usuarios as $usuario)
                                     <option value="{{ $usuario->id_usuario }}">
-                                        <!-- CORREGIDO: id_usuario en lugar de id -->
                                         {{ $usuario->nombre_completo }} - {{ $usuario->email }}
                                     </option>
                                     @endforeach
@@ -248,36 +361,17 @@
                                 @enderror
                             </div>
 
-                            <!-- Fecha y Hora -->
-                            <div class="col-md-6">
-                                <label class="form-label">Fecha <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control @error('fecha_reservacion') is-invalid @enderror"
-                                    wire:model="fecha_reservacion" min="{{ date('Y-m-d') }}">
-                                @error('fecha_reservacion')
+                            <!-- Monto y Estado -->
+                            <div class="col-md-3">
+                                <label class="form-label">Monto (Bs.) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control @error('monto_pago') is-invalid @enderror"
+                                    wire:model="monto_pago" min="0" placeholder="30.00">
+                                @error('monto_pago')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label">Hora <span class="text-danger">*</span></label>
-                                <input type="time" class="form-control @error('hora_reservacion') is-invalid @enderror"
-                                    wire:model="hora_reservacion" min="08:00" max="22:00">
-                                @error('hora_reservacion')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <!-- Número de Personas y Estado -->
-                            <div class="col-md-6">
-                                <label class="form-label">Número de Personas <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control @error('numero_personas') is-invalid @enderror"
-                                    wire:model="numero_personas" min="1" max="20" placeholder="Ej: 4">
-                                @error('numero_personas')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <label class="form-label">Estado <span class="text-danger">*</span></label>
                                 <select class="form-select @error('estado') is-invalid @enderror" wire:model="estado">
                                     <option value="pendiente">Pendiente</option>
@@ -308,7 +402,8 @@
                                 <i class="bi bi-x-circle me-1"></i>
                                 Cancelar
                             </button>
-                            <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
+                            <button type="submit" class="btn btn-primary" wire:loading.attr="disabled"
+                                {{ !$id_mesa || !$hora_reservacion ? 'disabled' : '' }}>
                                 <i class="bi bi-check-circle me-1"></i>
                                 <span wire:loading.remove>{{ $isEditing ? 'Actualizar' : 'Crear' }} Reservación</span>
                                 <span wire:loading>
@@ -345,7 +440,7 @@
                         <i class="bi bi-trash me-2"></i>
                         Eliminar
                     </button>
-                    <button wire:click="reservacionToDelete = null" class="btn btn-outline-secondary">
+                    <button wire:click="$set('reservacionToDelete', null)" class="btn btn-outline-secondary">
                         <i class="bi bi-x-circle me-2"></i>
                         Cancelar
                     </button>
@@ -354,35 +449,11 @@
         </div>
     </div>
     @endif
+</div>
 
-    <!-- Mensajes Flash -->
-    @if (session()->has('success'))
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div class="toast show" role="alert">
-            <div class="toast-header bg-success text-white">
-                <i class="bi bi-check-circle me-2"></i>
-                <strong class="me-auto">Éxito</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-            </div>
-            <div class="toast-body">
-                {{ session('success') }}
-            </div>
-        </div>
-    </div>
-    @endif
-
-    @if (session()->has('error'))
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div class="toast show" role="alert">
-            <div class="toast-header bg-danger text-white">
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                <strong class="me-auto">Error</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-            </div>
-            <div class="toast-body">
-                {{ session('error') }}
-            </div>
-        </div>
-    </div>
-    @endif
+<style>
+.modal-xl {
+    max-width: 1140px;
+}
+</style>
 </div>

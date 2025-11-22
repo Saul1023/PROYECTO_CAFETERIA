@@ -199,13 +199,13 @@
         font-weight: bold;
         font-size: 0.9rem;
         color: white;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
     /* Dropdown Styles */
     .dropdown-menu {
         border: none;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
         border-radius: 12px;
         padding: 0.5rem;
         min-width: 280px;
@@ -880,7 +880,7 @@
     }
 
 
-    /* Filtro de Categorías */
+        /* Filtro de Categorías */
     .category-filter-section {
         background: white;
         border-radius: 20px;
@@ -1098,6 +1098,48 @@
             min-width: auto;
         }
     }
+        :root {
+        --color-primary: #6B4423;
+        --color-secondary: #D4A574;
+        --color-accent: #C17817;
+        --color-cream: #FAF7F2;
+        --color-dark: #3E2723;
+        --color-light: #FFFFFF;
+        --shadow-soft: 0 4px 20px rgba(107, 68, 35, 0.1);
+        --shadow-medium: 0 8px 30px rgba(107, 68, 35, 0.15);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #FAF7F2 0%, #F5EFE6 100%);
+        color: #2c2c2c;
+        min-height: 100vh;
+        line-height: 1.6;
+    }
+
+    /* Estilos para modales grandes */
+    .modal-xl-custom {
+        max-width: 95%;
+        width: 1200px;
+    }
+
+    .modal-fullscreen-custom {
+        max-width: 100%;
+        margin: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .modal-xl-custom {
+            max-width: 100%;
+            margin: 0.5rem;
+        }
+    }
     </style>
 </head>
 
@@ -1119,32 +1161,32 @@
                 </div>
             </div>
 
+            <!-- REEMPLAZA la sección del navbar en welcome.blade.php (línea ~311-320 aprox) -->
+
             <div class="auth-section">
                 @auth
                 <!-- MENÚ PARA CLIENTES AUTENTICADOS -->
                 @if(auth()->user()->esCliente())
-                <div class="nav-links" style="display: flex; gap: 1.5rem; margin-right: 1rem;">
-                    <a href="{{ route('cliente.reservar') }}" class="nav-link">
-                        <i class="bi bi-calendar-plus" style="margin-right: 0.3rem;"></i>
-                        Reservar
-                    </a>
-                    <a href="{{ route('cliente.reservaciones') }}" class="nav-link">
-                        <i class="bi bi-list-check" style="margin-right: 0.3rem;"></i>
-                        Mis Reservas
-                    </a>
-                </div>
+                    <div class="nav-links" style="display: flex; gap: 1.5rem; margin-right: 1rem;">
+                        <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#modalReservarMesa">
+                            <i class="bi bi-calendar-plus" style="margin-right: 0.3rem;"></i>
+                            Reservar
+                        </a>
+                        <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#modalMisReservaciones">
+                            <i class="bi bi-list-check" style="margin-right: 0.3rem;"></i>
+                            Mis Reservas
+                        </a>
+                    </div>
                 @endif
 
                 <!-- Dropdown de Usuario -->
                 <div class="dropdown">
-                    <button class="btn btn-light d-flex align-items-center gap-2" type="button" id="userDropdown"
-                        data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn btn-light d-flex align-items-center gap-2" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="user-avatar">
                             {{ strtoupper(substr(Auth::user()->nombre, 0, 1) . substr(Auth::user()->apellido_pat ?? Auth::user()->nombre, 0, 1)) }}
                         </div>
                         <div class="d-none d-md-block text-start">
                             <div class="fw-bold small">{{ Auth::user()->nombre_completo }}</div>
-
                         </div>
                         <i class="bi bi-chevron-down"></i>
                     </button>
@@ -1164,29 +1206,24 @@
 
                         <!-- Opciones del menú -->
                         <li>
-                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal"
-                                data-bs-target="#modalPerfil">
+                            <a class="dropdown-item user-dropdown-item" href="{{ route('cliente.perfil') }}">
                                 <i class="bi bi-person"></i>
                                 <span>Mi Perfil</span>
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal"
-                                data-bs-target="#modalConfiguracion">
+                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalConfiguracion">
                                 <i class="bi bi-gear"></i>
                                 <span>Configuración</span>
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal"
-                                data-bs-target="#modalAyuda">
+                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalAyuda">
                                 <i class="bi bi-question-circle"></i>
                                 <span>Ayuda</span>
                             </a>
                         </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
+                        <li><hr class="dropdown-divider"></li>
                         <li>
                             <form method="POST" action="{{ route('logout') }}" id="logoutForm">
                                 @csrf
@@ -1217,27 +1254,27 @@
                 </button>
             </div>
 
-            <!-- Mobile Menu -->
+            <!-- Mobile Menu (actualizar también) -->
             <div id="mobileMenu" class="mobile-menu">
                 <ul class="mobile-menu-list">
                     <li><a href="{{ route('home') }}" class="nav-link">Home</a></li>
                     <li><a href="{{ route('home') }}#productos" class="nav-link">Productos</a></li>
 
                     @auth
-                    @if(auth()->user()->esCliente())
-                    <li><a href="{{ route('cliente.reservar') }}" class="nav-link">Reservar</a></li>
-                    <li><a href="{{ route('cliente.reservaciones') }}" class="nav-link">Mis Reservas</a></li>
-                    @endif
+                        @if(auth()->user()->esCliente())
+                            <li><a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#modalReservarMesa">Reservar</a></li>
+                            <li><a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#modalMisReservaciones">Mis Reservas</a></li>
+                        @endif
 
-                    <li>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="btn btn-secondary w-100">Cerrar Sesión</button>
-                        </form>
-                    </li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="btn btn-secondary w-100">Cerrar Sesión</button>
+                            </form>
+                        </li>
                     @else
-                    <li><a href="{{ route('login') }}" class="btn btn-secondary">Iniciar Sesión</a></li>
-                    <li><a href="{{ route('registro') }}" class="btn btn-primary">Registrarse</a></li>
+                        <li><a href="{{ route('login') }}" class="btn btn-secondary">Iniciar Sesión</a></li>
+                        <li><a href="{{ route('registro') }}" class="btn btn-primary">Registrarse</a></li>
                     @endauth
                 </ul>
             </div>
@@ -1305,7 +1342,7 @@
             @endguest
         </div>
 
-        <!-- Filtro de Categorías -->
+            <!-- Filtro de Categorías -->
         <div class="category-filter-section" style="margin-bottom: 2rem;">
             <div class="category-filter-container">
                 <div class="filter-header">
@@ -1316,20 +1353,18 @@
                 </div>
 
                 <div class="category-buttons-wrapper">
-                    <button type="button" class="category-btn active" data-categoria="all"
-                        onclick="filtrarPorCategoria('all')">
+                    <button type="button" class="category-btn active" data-categoria="all" onclick="filtrarPorCategoria('all')">
                         <i class="bi bi-grid-3x3-gap-fill"></i>
                         <span>Todos los Productos</span>
                         <span class="category-count" id="count-all">{{ $productos->count() }}</span>
                     </button>
 
                     @php
-                    $categorias = $productos->pluck('categoria')->unique()->filter()->sortBy('nombre');
+                        $categorias = $productos->pluck('categoria')->unique()->filter()->sortBy('nombre');
                     @endphp
 
                     @foreach($categorias as $categoria)
-                    <button type="button" class="category-btn" data-categoria="{{ $categoria->id_categoria }}"
-                        onclick="filtrarPorCategoria({{ $categoria->id_categoria }})">
+                    <button type="button" class="category-btn" data-categoria="{{ $categoria->id_categoria }}" onclick="filtrarPorCategoria({{ $categoria->id_categoria }})">
                         <i class="bi bi-tag-fill"></i>
                         <span>{{ $categoria->nombre }}</span>
                         <span class="category-count" id="count-{{ $categoria->id_categoria }}">
@@ -1352,48 +1387,49 @@
                         <span class="product-badge stock-bajo">
                             <i class="bi bi-exclamation-triangle-fill"></i> Últimas unidades
                         </span>
-                        @elseif($producto->stock < 10) <span class="product-badge popular">
+                    @elseif($producto->stock < 10)
+                        <span class="product-badge popular">
                             <i class="bi bi-star-fill"></i> Popular
-                            </span>
+                        </span>
+                    @else
+                        <span class="product-badge">
+                            <i class="bi bi-check-circle-fill"></i> Disponible
+                        </span>
+                    @endif
+
+                        <div class="martinez-product-image">
+                            @if($producto->imagen)
+                            <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}"
+                                loading="lazy">
                             @else
-                            <span class="product-badge">
-                                <i class="bi bi-check-circle-fill"></i> Disponible
-                            </span>
+                            <div class="no-image">
+                                <i class="bi bi-cup-hot"></i>
+                                <span>{{ $producto->nombre }}</span>
+                            </div>
                             @endif
+                        </div>
 
-                            <div class="martinez-product-image">
-                                @if($producto->imagen)
-                                <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}"
-                                    loading="lazy">
-                                @else
-                                <div class="no-image">
-                                    <i class="bi bi-cup-hot"></i>
-                                    <span>{{ $producto->nombre }}</span>
+                        <div class="martinez-product-info">
+                            <h3 class="martinez-product-title">{{ $producto->nombre }}</h3>
+                            <p class="martinez-product-description">
+                                {{ $producto->descripcion ?: 'Producto de alta calidad con los mejores ingredientes.' }}
+                            </p>
+
+                            <div class="martinez-product-footer">
+                                <div class="martinez-product-price">{{ $producto->precio_formateado }}</div>
+                                <div
+                                    class="product-stock {{ $producto->stock <= $producto->stock_minimo ? 'stock-bajo' : '' }}">
+                                    <i class="bi bi-box-seam stock-icon"></i>
+                                    <span>{{ $producto->stock }} disp.</span>
                                 </div>
-                                @endif
                             </div>
 
-                            <div class="martinez-product-info">
-                                <h3 class="martinez-product-title">{{ $producto->nombre }}</h3>
-                                <p class="martinez-product-description">
-                                    {{ $producto->descripcion ?: 'Producto de alta calidad con los mejores ingredientes.' }}
-                                </p>
-
-                                <div class="martinez-product-footer">
-                                    <div class="martinez-product-price">{{ $producto->precio_formateado }}</div>
-                                    <div
-                                        class="product-stock {{ $producto->stock <= $producto->stock_minimo ? 'stock-bajo' : '' }}">
-                                        <i class="bi bi-box-seam stock-icon"></i>
-                                        <span>{{ $producto->stock }} disp.</span>
-                                    </div>
-                                </div>
-
-                                @if($producto->categoria)
-                                <div class="product-category">
-                                    <span class="category-badge">{{ $producto->categoria->nombre }}</span>
-                                </div>
-                                @endif
+                            @if($producto->categoria)
+                            <div class="product-category">
+                                <span class="category-badge">{{ $producto->categoria->nombre }}</span>
                             </div>
+                            @endif
+                        </div>
                 </div>
                 @endforeach
             </div>
@@ -1411,6 +1447,41 @@
     </main>
 
     @auth
+    @if(auth()->user()->esCliente())
+    <!-- MODAL: RESERVAR MESA -->
+    <div class="modal fade" id="modalReservarMesa" tabindex="-1" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-xl-custom modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-black text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-calendar-plus me-2"></i>Reservar Mesa
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    @livewire('cliente.reservar-mesa')
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: MIS RESERVACIONES -->
+    <div class="modal fade" id="modalMisReservaciones" tabindex="-1" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-xl-custom modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-black text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-list-check me-2"></i>Mis Reservaciones
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    @livewire('cliente.mis-reservaciones')
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
     <!-- Modales -->
     <div class="modal fade" id="modalPerfil" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -1452,9 +1523,9 @@
                             </label>
                             <div class="form-control bg-light">
                                 @if(Auth::user()->estado)
-                                <span class="badge bg-success">Activo</span>
+                                    <span class="badge bg-success">Activo</span>
                                 @else
-                                <span class="badge bg-danger">Inactivo</span>
+                                    <span class="badge bg-danger">Inactivo</span>
                                 @endif
                             </div>
                         </div>
@@ -1516,91 +1587,102 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- JavaScript para Mobile Menu -->
-    <!-- JavaScript para Mobile Menu y Filtros -->
-    <script>
-    (function() {
-        // Mobile Menu
-        var btn = document.getElementById('menuToggle');
-        var menu = document.getElementById('mobileMenu');
-        if (btn && menu) {
-            btn.addEventListener('click', function() {
-                menu.classList.toggle('show');
-                var isExpanded = menu.classList.contains('show');
-                btn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
-            });
-        }
-    })();
-
-    // Función para filtrar productos por categoría
-    function filtrarPorCategoria(categoriaId) {
-        // Obtener todas las tarjetas de productos
-        const productos = document.querySelectorAll('.martinez-product-card');
-        const botones = document.querySelectorAll('.category-btn');
-        const noProductsMessage = document.getElementById('noProductsMessage');
-        let productosVisibles = 0;
-
-        // Remover clase active de todos los botones
-        botones.forEach(btn => btn.classList.remove('active'));
-
-        // Agregar clase active al botón clickeado
-        const botonActivo = document.querySelector(`[data-categoria="${categoriaId}"]`);
-        if (botonActivo) {
-            botonActivo.classList.add('active');
-        }
-
-        // Filtrar productos
-        productos.forEach(producto => {
-            const productoCategoria = producto.getAttribute('data-categoria');
-
-            if (categoriaId === 'all' || productoCategoria === String(categoriaId)) {
-                producto.classList.remove('hidden');
-                producto.style.display = '';
-                productosVisibles++;
-
-                // Animación de entrada
-                setTimeout(() => {
-                    producto.style.opacity = '1';
-                    producto.style.transform = 'translateY(0)';
-                }, 50);
-            } else {
-                producto.classList.add('hidden');
-                producto.style.opacity = '0';
-                producto.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    producto.style.display = 'none';
-                }, 300);
-            }
+<!-- JavaScript para Mobile Menu y Filtros -->
+<script>
+(function() {
+    // Mobile Menu
+    var btn = document.getElementById('menuToggle');
+    var menu = document.getElementById('mobileMenu');
+    if (btn && menu) {
+        btn.addEventListener('click', function() {
+            menu.classList.toggle('show');
+            var isExpanded = menu.classList.contains('show');
+            btn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
         });
-
-        // Mostrar/ocultar mensaje de "no hay productos"
-        if (productosVisibles === 0) {
-            noProductsMessage.style.display = 'block';
-            noProductsMessage.style.animation = 'fadeInUp 0.5s ease-out';
-        } else {
-            noProductsMessage.style.display = 'none';
-        }
-
-        // Scroll suave a la sección de productos
-        const productosSection = document.getElementById('productos');
-        if (productosSection && categoriaId !== 'all') {
-            setTimeout(() => {
-                productosSection.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }, 100);
-        }
     }
+})();
 
-    // Inicializar los estilos de transición
-    document.addEventListener('DOMContentLoaded', function() {
-        const productos = document.querySelectorAll('.martinez-product-card');
-        productos.forEach(producto => {
-            producto.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    document.addEventListener('livewire:initialized', () => {
+        Livewire.on('reserva-creada', () => {
+            // Cerrar el modal de reservar y abrir el de mis reservaciones
+            const modalReservar = bootstrap.Modal.getInstance(document.getElementById('modalReservarMesa'));
+            if (modalReservar) {
+                modalReservar.hide();
+            }
+
+            // Abrir el modal de mis reservaciones después de un breve delay
+            setTimeout(() => {
+                const modalMisReservaciones = new bootstrap.Modal(document.getElementById('modalMisReservaciones'));
+                modalMisReservaciones.show();
+            }, 500);
         });
     });
-    </script>
+// Función para filtrar productos por categoría
+function filtrarPorCategoria(categoriaId) {
+    // Obtener todas las tarjetas de productos
+    const productos = document.querySelectorAll('.martinez-product-card');
+    const botones = document.querySelectorAll('.category-btn');
+    const noProductsMessage = document.getElementById('noProductsMessage');
+    let productosVisibles = 0;
+
+    // Remover clase active de todos los botones
+    botones.forEach(btn => btn.classList.remove('active'));
+
+    // Agregar clase active al botón clickeado
+    const botonActivo = document.querySelector(`[data-categoria="${categoriaId}"]`);
+    if (botonActivo) {
+        botonActivo.classList.add('active');
+    }
+
+    // Filtrar productos
+    productos.forEach(producto => {
+        const productoCategoria = producto.getAttribute('data-categoria');
+
+        if (categoriaId === 'all' || productoCategoria === String(categoriaId)) {
+            producto.classList.remove('hidden');
+            producto.style.display = '';
+            productosVisibles++;
+
+            // Animación de entrada
+            setTimeout(() => {
+                producto.style.opacity = '1';
+                producto.style.transform = 'translateY(0)';
+            }, 50);
+        } else {
+            producto.classList.add('hidden');
+            producto.style.opacity = '0';
+            producto.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                producto.style.display = 'none';
+            }, 300);
+        }
+    });
+
+    // Mostrar/ocultar mensaje de "no hay productos"
+    if (productosVisibles === 0) {
+        noProductsMessage.style.display = 'block';
+        noProductsMessage.style.animation = 'fadeInUp 0.5s ease-out';
+    } else {
+        noProductsMessage.style.display = 'none';
+    }
+
+    // Scroll suave a la sección de productos
+    const productosSection = document.getElementById('productos');
+    if (productosSection && categoriaId !== 'all') {
+        setTimeout(() => {
+            productosSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+}
+
+// Inicializar los estilos de transición
+document.addEventListener('DOMContentLoaded', function() {
+    const productos = document.querySelectorAll('.martinez-product-card');
+    productos.forEach(producto => {
+        producto.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    });
+});
+</script>
 </body>
 
 </html>

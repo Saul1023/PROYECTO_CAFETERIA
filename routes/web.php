@@ -131,14 +131,13 @@ Route::middleware(['auth', 'role:CLIENTE'])->prefix('cliente')->name('cliente.')
     })->name('home');
 
     // Mis Reservaciones (usa layout admin pero con contenido simple)
-    Route::get('/mis-reservaciones', function () {
-        return view('cliente.reservaciones');
-    })->name('reservaciones');
-
-    // Hacer Reservación (usa layout admin pero con formulario simple)
     Route::get('/reservar', function () {
-        return view('cliente.reservar');
+        return redirect()->route('home')->with('openModal', 'reservar');
     })->name('reservar');
+
+    Route::get('/reservaciones', function () {
+        return redirect()->route('home')->with('openModal', 'reservaciones');
+    })->name('reservaciones');
 
     // Mi Perfil (usa layout admin pero con perfil simple)
     Route::get('/perfil',PerfilUsuario::class)->name('perfil');
