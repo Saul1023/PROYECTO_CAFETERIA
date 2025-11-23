@@ -179,8 +179,10 @@
                     @endif
                 </td>
                 <td class="text-center">{{ $fechaInicio->format('d/m/Y') }}</td>
-                <td class="text-center">{{ $fechaFin->format('d/m/Y') }}</td>
-                <td class="text-center">{{ $promocion->productos_count ?? $promocion->productos->count() ?? 0 }}</td>
+                <td class="text-center">
+                    {{ $promocion->productos_count ?? ($promocion->productos ? count($promocion->productos) : 0) }}</td>
+                <td class="text-center">
+                    {{ $promocion->productos_count ?? ($promocion->productos ? count($promocion->productos) : 0) }}</td>
                 <td class="text-center">
                     <span class="badge bg-{{ $promocion->estado ? 'success' : 'danger' }}">
                         {{ $promocion->estado ? 'Activa' : 'Inactiva' }}

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte de Mesas - EL RINCON SABROSITO</title>
+    <title>Reporte de Categorías - EL RINCON SABROSITO</title>
     <style>
     body {
         font-family: 'DejaVu Sans', sans-serif;
@@ -71,46 +71,48 @@
 <body>
     <div class="header">
         <h1>EL RINCON SABROSITO</h1>
-        <h2>Reporte de Mesas</h2>
+        <h2>Reporte de Categorías</h2>
         <p>Generado el: {{ now()->format('d/m/Y H:i') }}</p>
     </div>
 
     <div class="estadisticas">
         <h3>Estadísticas Generales</h3>
-        <p><strong>Total Mesas:</strong> {{ $estadisticas['total'] ?? 0 }}</p>
-        <p><strong>Mesas Activas:</strong> {{ $estadisticas['activas'] ?? 0 }}</p>
-        <p><strong>Disponibles:</strong> {{ $estadisticas['disponibles'] ?? 0 }}</p>
-        <p><strong>Ocupadas:</strong> {{ $estadisticas['ocupadas'] ?? 0 }}</p>
-        <p><strong>Reservadas:</strong> {{ $estadisticas['reservadas'] ?? 0 }}</p>
-        <p><strong>Reservaciones en Período:</strong> {{ $estadisticas['reservaciones_periodo'] ?? 0 }}</p>
-        <p><strong>Capacidad Total:</strong> {{ $estadisticas['capacidad_total'] ?? 0 }} personas</p>
+        <p><strong>Total Categorías:</strong> {{ $estadisticas['total'] ?? 0 }}</p>
+        <p><strong>Categorías Activas:</strong> {{ $estadisticas['activas'] ?? 0 }}</p>
+        <p><strong>Con Productos:</strong> {{ $estadisticas['con_productos'] ?? 0 }}</p>
+        <p><strong>Sin Productos:</strong> {{ $estadisticas['sin_productos'] ?? 0 }}</p>
     </div>
 
     <table class="table">
         <thead>
             <tr>
                 <th>#</th>
-                <th>Mesa</th>
-                <th>Ubicación</th>
-                <th>Capacidad</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
                 <th>Estado</th>
-                <th>Reservaciones (Periodo)</th>
+                <th>Total Productos</th>
+                <th>Fecha Creación</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($reporteData as $mesa)
+            @foreach($reporteData as $categoria)
             <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td>{{ $mesa->nombre ?? 'N/A' }}</td>
-                <td>{{ $mesa->ubicacion ?? 'N/A' }}</td>
-                <td>{{ $mesa->capacidad ?? 0 }}</td>
+                <td>{{ $categoria->nombre ?? 'N/A' }}</td>
+                <td>{{ $categoria->descripcion ?? 'Sin descripción' }}</td>
                 <td>
-                    <span
-                        class="badge bg-{{ $mesa->estado == 'ocupada' ? 'danger' : ($mesa->estado == 'reservada' ? 'warning' : 'success') }}">
-                        {{ ucfirst($mesa->estado) }}
+                    <span class="badge bg-{{ ($categoria->estado ?? false) ? 'success' : 'danger' }}">
+                        {{ ($categoria->estado ?? false) ? 'Activa' : 'Inactiva' }}
                     </span>
                 </td>
-                <td>{{ $mesa->reservaciones_count ?? 0 }}</td>
+                <td>{{ $categoria->productos_count ?? 0 }}</td>
+                <td>
+                    @if(isset($categoria->fecha_creacion))
+                    {{ \Carbon\Carbon::parse($categoria->fecha_creacion)->format('d/m/Y H:i') }}
+                    @else
+                    N/A
+                    @endif
+                </td>
             </tr>
             @endforeach
         </tbody>

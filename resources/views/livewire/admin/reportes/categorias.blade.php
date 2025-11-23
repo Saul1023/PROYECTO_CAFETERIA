@@ -44,7 +44,7 @@
                     {{ $cat->estado ? 'Activa' : 'Inactiva' }}
                 </span>
             </td>
-            <td>{{ $cat->created_at->format('d/m/Y') }}</td>
+            <td>{{ $cat->fecha_creacion ? \Carbon\Carbon::parse($cat->fecha_creacion)->format('d/m/Y') : 'N/A' }}</td>
         </tr>
         @endforeach
     </tbody>
