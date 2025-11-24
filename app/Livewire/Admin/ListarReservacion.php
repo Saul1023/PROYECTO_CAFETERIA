@@ -60,6 +60,7 @@ class ListarReservacion extends Component
         'fecha_reservacion.required' => 'La fecha de reservación es obligatoria',
         'fecha_reservacion.after_or_equal' => 'La fecha no puede ser anterior a hoy',
         'hora_reservacion.required' => 'La hora de reservación es obligatoria',
+        'hora_reservacion.in' => 'Debe seleccionar un horario válido (8:00 AM - 8:00 PM, cada 2 horas)',
         'numero_personas.required' => 'El número de personas es obligatorio',
         'numero_personas.min' => 'Debe haber al menos 1 persona',
         'numero_personas.max' => 'Máximo 20 personas por reservación',
@@ -114,6 +115,27 @@ class ListarReservacion extends Component
             '08:00', '10:00', '12:00', '14:00',
             '16:00', '18:00', '20:00'
         ];
+
+        // Si es hoy, filtrar horarios que ya pasaron
+        $fechaSeleccionada = Carbon::parse($this->fecha_reservacion);
+        $esHoy = $fechaSeleccionada->isToday();
+
+        if ($esHoy) {
+            $horaActual = Carbon::now();
+            $horariosRestaurante = array_filter($horariosRestaurante, function($horario) use ($horaActual) {
+                $horarioCarbon = Carbon::parse($horario);
+                // Solo mostrar horarios que faltan al menos 2 horas
+                return $horarioCarbon->greaterThan($horaActual->copy()->addHours(2));
+            });
+
+            // Si no hay horarios disponibles para hoy
+            if (empty($horariosRestaurante)) {
+                $this->mesasDisponibles = [];
+                $this->mostrarDisponibilidad = true;
+                session()->flash('warning', 'No hay horarios disponibles para hoy. Por favor selecciona otra fecha.');
+                return;
+            }
+        }
 
         // Obtener mesas que pueden acomodar el número de personas
         $mesas = Mesa::where('activa', true)
@@ -205,13 +227,44 @@ class ListarReservacion extends Component
             $horaFormateada .= ':00';
         }
 
+        // Validar SOLO si no es edición Y SOLO si es para HOY
+        if (!$this->isEditing) {
+            $fechaSeleccionada = Carbon::parse($this->fecha_reservacion);
+
+            // DEBUG - Temporal para ver qué está pasando
+            logger('DEBUG Reservación:', [
+                'fecha_seleccionada' => $fechaSeleccionada->toDateString(),
+                'es_hoy' => $fechaSeleccionada->isToday() ? 'SI' : 'NO',
+                'fecha_hoy' => Carbon::today()->toDateString(),
+            ]);
+
+            // SOLO validar si es para HOY
+            if ($fechaSeleccionada->isToday()) {
+                $fechaHoraReserva = Carbon::parse($this->fecha_reservacion . ' ' . $horaFormateada);
+
+                if ($fechaHoraReserva->isPast()) {
+                    session()->flash('error', 'No se puede reservar en una hora que ya pasó.');
+                    return;
+                }
+
+                // Validar que falten al menos 2 horas SOLO para hoy
+                $horasRestantes = Carbon::now()->diffInHours($fechaHoraReserva, false);
+                if ($horasRestantes < 2) {
+                    session()->flash('error', 'Debe reservar con al menos 2 horas de anticipación para reservas del día de hoy. (Faltan ' . $horasRestantes . ' horas)');
+                    return;
+                }
+            } else {
+                // DEBUG - Para ver que entra aquí en fechas futuras
+                logger('Es fecha futura, no se validan las 2 horas');
+            }
+        }
+
         // Verificar disponibilidad
         $mesaOcupada = Reservacion::where('id_mesa', $this->id_mesa)
             ->where('fecha_reservacion', $this->fecha_reservacion)
             ->where('hora_reservacion', $horaFormateada)
             ->whereIn('estado', ['pendiente', 'confirmada'])
             ->when($this->isEditing, function($q) {
-                // Si estamos editando, excluir la reservación actual
                 $q->where('id_reservacion', '!=', $this->reservacionId);
             })
             ->exists();

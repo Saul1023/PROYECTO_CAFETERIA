@@ -17,6 +17,13 @@
                 </div>
             @endif
 
+            @if (session()->has('warning'))
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('warning') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
             <!-- Header -->
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
                 <div class="mb-3 mb-md-0">
@@ -294,6 +301,9 @@
                                     <div class="alert alert-warning">
                                         <i class="bi bi-exclamation-triangle me-2"></i>
                                         No hay mesas disponibles para la fecha y número de personas seleccionados.
+                                        @if(Carbon\Carbon::parse($fecha_reservacion)->isToday())
+                                            <br><strong>Nota:</strong> Para reservas hoy, solo se muestran horarios con al menos 2 horas de anticipación.
+                                        @endif
                                     </div>
                                 @endif
                             </div>
@@ -338,7 +348,7 @@
                                         readonly
                                         placeholder="Selecciona un horario disponible arriba">
                                 @endif
-                                <small class="text-muted">Horarios disponibles: 8:00 AM - 8:00 PM (cada 2 horas)</small>
+                                <small class="text-muted">Horarios disponibles: 8:00 AM - 8:00 PM (cada 2 horas). Mínimo 2 horas de anticipación.</small>
                                 @error('hora_reservacion')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

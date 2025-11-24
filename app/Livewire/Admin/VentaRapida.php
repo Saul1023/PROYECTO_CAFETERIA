@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\{DetallePedido, DetalleVenta, Mesa, Pedido, Producto, Rol, Usuario, Venta};
+use App\Models\{DetallePedido, DetalleVenta, Mesa, Pedido, Producto, Reservacion, Rol, Usuario, Venta};
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
@@ -13,6 +13,8 @@ use Illuminate\Support\Str;
 class VentaRapida extends Component
 {
     public $search = '';
+    public $categoriaSeleccionada = 'todas'; // Agregar esta línea
+    public $categorias = []; // Agregar esta línea
     public $productos = [];
     public $carrito = [];
     public $subtotal = 0;
@@ -20,7 +22,12 @@ class VentaRapida extends Component
     public $total = 0;
     public $descuentoManual = 0;
     public $descuentoPromociones = 0;
-
+    public $mostrarSelectorMesa = false;
+    public $mesasDisponiblesHoy = [];
+    public $reservacionesHoy = [];
+    public $reservacionSeleccionada = null;
+    public $mostrarReservaciones = false;
+    public $tipoSeleccion = null; // 'mesa_disponible' o 'reservacion'
     public $metodoPago = 'efectivo';
     public $observaciones = '';
     public $tipoConsumo = 'mesa';
@@ -44,6 +51,8 @@ class VentaRapida extends Component
         $this->logAction('VENTA RAPIDA MOUNT START');
         try {
             $this->cargarDatos();
+            $this->cargarMesasDisponibles();
+            $this->cargarReservacionesHoy();
             $this->logAction('VENTA RAPIDA MOUNT SUCCESS');
         } catch (Exception $e) {
             $this->logError('VENTA RAPIDA MOUNT ERROR', $e);
@@ -84,6 +93,7 @@ class VentaRapida extends Component
         $this->logAction('Cargando datos...');
 
         try {
+            $this->cargarCategorias();
             $this->cargarProductos();
             $this->cargarMesas();
             $this->cargarClientes();
@@ -92,19 +102,39 @@ class VentaRapida extends Component
             throw $e;
         }
     }
+    private function cargarCategorias()
+    {
+        $this->categorias = \App\Models\Categoria::where('estado', true)
+            ->orderBy('nombre')
+            ->get([ 'id_categoria','nombre']);
+
+       // Log::info('Categorías cargadas: ' . $this->categorias->count());
+    }
 
     private function cargarProductos()
     {
-        $productosGrouped = Producto::with(['categoria', 'promociones' => $this->getPromocionesActivasQuery()])
+        $query = Producto::with(['categoria', 'promociones' => $this->getPromocionesActivasQuery()])
             ->activos()
-            ->conStock()
-            ->when($this->search, fn($q) => $q->where('nombre', 'like', "%{$this->search}%"))
-            ->get()
+            ->conStock();
+
+        // Filtrar por búsqueda
+        if ($this->search) {
+            $query->where('nombre', 'like', "%{$this->search}%");
+        }
+
+        // Filtrar por categoría seleccionada
+        if ($this->categoriaSeleccionada && $this->categoriaSeleccionada !== 'todas') {
+            $query->where('id_categoria', $this->categoriaSeleccionada);
+        }
+
+        $productosGrouped = $query->get()
             ->groupBy(fn($p) => $p->categoria->nombre ?? 'Sin Categoría');
 
         $this->productos = collect($productosGrouped)->mapWithKeys(function ($productosCategoria, $categoria) {
             return [$categoria => $productosCategoria->map(fn($producto) => $this->formatearProducto($producto))->toArray()];
         })->toArray();
+
+     //   Log::info("Productos cargados - Categoría: {$this->categoriaSeleccionada}, Búsqueda: '{$this->search}', Total: " . collect($this->productos)->flatten(1)->count());
     }
 
     private function cargarMesas()
@@ -128,7 +158,115 @@ class VentaRapida extends Component
             $this->clientes = [];
         }
 
-        Log::info('Clientes cargados: ' . $this->clientes->count());
+       // Log::info('Clientes cargados: ' . $this->clientes->count());
+    }
+
+    private function cargarMesasDisponibles()
+    {
+        $now = Carbon::now();
+        $horaActual = $now->format('H:i:s');
+
+        // Obtener solo las mesas que están reservadas EN ESTE MOMENTO (hora actual)
+        $mesasReservadasAhora = Reservacion::whereDate('fecha_reservacion', today())
+            ->where('estado', 'confirmada')
+            ->where('hora_reservacion', '<=', $horaActual)
+            ->where('hora_reservacion', '>=', $now->copy()->subHours(2)->format('H:i:s'))
+            ->pluck('id_mesa')
+            ->toArray();
+
+        // Mostrar TODAS las mesas activas y disponibles, excepto las que están reservadas AHORA
+        $this->mesasDisponiblesHoy = Mesa::where('activa', true)
+            ->where('estado', 'disponible')
+            ->whereNotIn('id_mesa', $mesasReservadasAhora)
+            ->get(['id_mesa', 'numero_mesa', 'capacidad', 'ubicacion']);
+
+       // Log::info('Mesas disponibles cargadas: ' . $this->mesasDisponiblesHoy->count());
+    }
+
+    private function cargarReservacionesHoy()
+    {
+        $now = Carbon::now();
+
+        // Mostrar TODAS las reservaciones confirmadas de hoy
+        $this->reservacionesHoy = Reservacion::with(['mesa', 'usuario'])
+            ->whereDate('fecha_reservacion', today())
+            ->where('estado', 'confirmada')
+            ->orderBy('hora_reservacion', 'asc')
+            ->get();
+
+        //Log::info('Reservaciones de hoy cargadas: ' . $this->reservacionesHoy->count());
+
+        // Debug: mostrar las reservaciones encontradas
+        foreach($this->reservacionesHoy as $res) {
+            Log::info("Reservación #{$res->id_reservacion} - Mesa: {$res->mesa->numero_mesa} - Hora: {$res->hora_reservacion}");
+        }
+    }
+    public function abrirSelectorMesa()
+    {
+        $this->cargarMesasDisponibles();
+        $this->mostrarSelectorMesa = true;
+        $this->tipoSeleccion = 'mesa_disponible';
+
+        //Log::info('Abriendo selector de mesas. Mesas disponibles: ' . $this->mesasDisponiblesHoy->count());
+    }
+
+    public function abrirSelectorReservacion()
+    {
+        $this->cargarReservacionesHoy();
+        $this->mostrarReservaciones = true;
+        $this->tipoSeleccion = 'reservacion';
+
+        //Log::info('Abriendo selector de reservaciones. Reservaciones encontradas: ' . $this->reservacionesHoy->count());
+    }
+
+    public function seleccionarMesaDisponible($mesaId)
+    {
+        $this->mesaSeleccionada = $mesaId;
+        $this->tipoConsumo = 'mesa';
+        $this->reservacionSeleccionada = null;
+        $this->mostrarSelectorMesa = false;
+
+        session()->flash('success', 'Mesa seleccionada correctamente');
+    }
+
+    public function seleccionarReservacion($reservacionId)
+    {
+        $reservacion = Reservacion::with(['mesa', 'usuario'])->find($reservacionId);
+
+        if (!$reservacion) {
+            session()->flash('error', 'Reservación no encontrada');
+            return;
+        }
+
+        // Cargar datos de la reservación
+        $this->reservacionSeleccionada = $reservacionId;
+        $this->mesaSeleccionada = $reservacion->id_mesa;
+        $this->clienteSeleccionado = $reservacion->id_usuario;
+        $this->tipoConsumo = 'mesa';
+        $this->observaciones = "Reservación #{$reservacion->id_reservacion} - " . ($reservacion->observaciones ?? '');
+
+        // Calcular totales considerando el monto de reservación
+        $this->calcularTotales();
+
+        $this->mostrarReservaciones = false;
+
+        session()->flash('success', "Reservación cargada. Cliente: {$reservacion->usuario->nombre_completo}");
+    }
+
+    public function cerrarSelectores()
+    {
+        $this->mostrarSelectorMesa = false;
+        $this->mostrarReservaciones = false;
+    }
+
+    public function limpiarSeleccion()
+    {
+        $this->mesaSeleccionada = null;
+        $this->reservacionSeleccionada = null;
+        $this->clienteSeleccionado = null;
+        $this->tipoSeleccion = null;
+        $this->observaciones = '';
+        $this->calcularTotales();
     }
 
     private function formatearProducto($producto)
@@ -159,6 +297,11 @@ class VentaRapida extends Component
     public function updatedSearch()
     {
         $this->logAction("Buscando: {$this->search}");
+        $this->cargarProductos();
+    }
+    public function updatedCategoriaSeleccionada()
+    {
+        $this->logAction("Filtrando por categoría: {$this->categoriaSeleccionada}");
         $this->cargarProductos();
     }
 
@@ -298,15 +441,25 @@ class VentaRapida extends Component
         $this->descuentoPromociones = collect($this->carrito)->sum('descuento_total');
 
         $descuentoManual = max(0, (float)$this->descuentoManual);
-        $this->descuento = $this->descuentoPromociones + $descuentoManual;
+
+        // Si hay reservación, agregar el monto como descuento
+        $montoReservacion = 0;
+        if ($this->reservacionSeleccionada) {
+            $reservacion = Reservacion::find($this->reservacionSeleccionada);
+            if ($reservacion) {
+                $montoReservacion = (float)$reservacion->monto_pago;
+            }
+        }
+
+        $this->descuento = $this->descuentoPromociones + $descuentoManual + $montoReservacion;
 
         // Validar que el descuento no sea mayor al subtotal
         if ($this->descuento > $this->subtotal) {
             $this->descuento = $this->subtotal;
-            $this->descuentoManual = min($this->descuentoManual, $this->subtotal);
+            $this->descuentoManual = max(0, $this->subtotal - $this->descuentoPromociones - $montoReservacion);
         }
 
-        $this->total = $this->subtotal - $this->descuento;
+        $this->total = max(0, $this->subtotal - $this->descuento);
     }
 
     public function incrementarCantidad($index)
@@ -453,7 +606,7 @@ class VentaRapida extends Component
             'numero_venta' => $numeroVenta,
             'id_usuario' => Auth::id(),
             'id_cliente' => $this->clienteSeleccionado,
-            'id_reserva' => null,
+            'id_reserva' => $this->reservacionSeleccionada,
             'subtotal' => $this->subtotal,
             'descuento' => $this->descuento,
             'total' => $this->total,
@@ -462,6 +615,15 @@ class VentaRapida extends Component
             'observaciones' => $this->observaciones,
             'fecha_venta' => now(),
         ]);
+            // Si hay reservación, actualizar su estado
+        if ($this->reservacionSeleccionada) {
+            Reservacion::find($this->reservacionSeleccionada)->update([
+                'estado' => 'completada',
+                'fecha_actualizacion' => now()
+            ]);
+        }
+
+        return $venta;
     }
 
 
@@ -470,6 +632,15 @@ class VentaRapida extends Component
         try {
             // Usar Carbon para la zona horaria de Bolivia
             $fechaBolivia = Carbon::now('America/La_Paz');
+            $reservacionInfo = null;
+            if ($this->reservacionSeleccionada) {
+                $reservacion = Reservacion::find($this->reservacionSeleccionada);
+                $reservacionInfo = [
+                    'numero' => $reservacion->id_reservacion,
+                    'codigo_qr' => $reservacion->codigo_qr,
+                    'monto_pago' => $reservacion->monto_pago
+                ];
+            }
 
             $comprobanteData = [
                 'numero_venta' => $ventaData['venta']->numero_venta,
@@ -477,6 +648,7 @@ class VentaRapida extends Component
                 'fecha' => $fechaBolivia->format('d/m/Y H:i:s'),
                 'vendedor' => Auth::user()->nombre_completo,
                 'cliente' => $ventaData['cliente'] ? $ventaData['cliente']->nombre_completo : 'Venta General',
+                'reservacion' => $reservacionInfo,
                 'mesa' => $ventaData['mesa'] ? 'Mesa ' . $ventaData['mesa']->numero_mesa : 'Para Llevar',
                 'tipo_consumo' => $this->tipoConsumo,
                 'metodo_pago' => $this->metodoPago,
