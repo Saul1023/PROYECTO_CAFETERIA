@@ -23,11 +23,8 @@
                             <label for="nombre" class="form-label">
                                 Nombre de la Categoría <span class="text-danger">*</span>
                             </label>
-                            <input type="text"
-                                class="form-control @error('nombre') is-invalid @enderror"
-                                id="nombre"
-                                wire:model="nombre"
-                                placeholder="Ej: Bebidas Calientes, Postres, etc.">
+                            <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre"
+                                wire:model="nombre" placeholder="Ej: Bebidas Calientes, Postres, etc.">
                             @error('nombre')
                             <div class="invalid-feedback">
                                 {{ $message }}
@@ -38,10 +35,8 @@
                         <!-- Descripción -->
                         <div class="mb-3">
                             <label for="descripcion" class="form-label">Descripción</label>
-                            <textarea class="form-control @error('descripcion') is-invalid @enderror"
-                                id="descripcion"
-                                wire:model="descripcion"
-                                rows="3"
+                            <textarea class="form-control @error('descripcion') is-invalid @enderror" id="descripcion"
+                                wire:model="descripcion" rows="3"
                                 placeholder="Descripción opcional de la categoría..."></textarea>
                             @error('descripcion')
                             <div class="invalid-feedback">
@@ -53,11 +48,8 @@
                         <!-- Imagen -->
                         <div class="mb-3">
                             <label for="imagen" class="form-label">Imagen de la Categoría</label>
-                            <input type="file"
-                                class="form-control @error('imagen') is-invalid @enderror"
-                                id="imagen"
-                                wire:model="imagen"
-                                accept="image/*">
+                            <input type="file" class="form-control @error('imagen') is-invalid @enderror" id="imagen"
+                                wire:model="imagen" accept="image/*">
                             @error('imagen')
                             <div class="invalid-feedback">
                                 {{ $message }}
@@ -68,8 +60,7 @@
                             @if ($imagen)
                             <div class="mt-2">
                                 <p class="text-muted mb-1">Vista previa:</p>
-                                <img src="{{ $imagen->temporaryUrl() }}"
-                                    class="img-thumbnail"
+                                <img src="{{ $imagen->temporaryUrl() }}" class="img-thumbnail"
                                     style="max-height: 150px;">
                             </div>
                             @endif
@@ -82,12 +73,8 @@
                         <!-- Estado -->
                         <div class="mb-4">
                             <div class="form-check form-switch">
-                                <input class="form-check-input"
-                                    type="checkbox"
-                                    role="switch"
-                                    id="estado"
-                                    wire:model="estado"
-                                    {{ $estado ? 'checked' : '' }}>
+                                <input class="form-check-input" type="checkbox" role="switch" id="estado"
+                                    wire:model="estado" {{ $estado ? 'checked' : '' }}>
                                 <label class="form-check-label" for="estado">
                                     Categoría activa
                                 </label>
@@ -99,15 +86,11 @@
 
                         <!-- Botones -->
                         <div class="d-flex gap-2 justify-content-end">
-                            <button type="button"
-                                wire:click="resetForm"
-                                class="btn btn-outline-secondary">
+                            <button type="button" wire:click="resetForm" class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-clockwise me-1"></i>
                                 Limpiar
                             </button>
-                            <button type="submit"
-                                class="btn btn-primary"
-                                wire:loading.attr="disabled">
+                            <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
                                 <i class="bi bi-check-circle me-1"></i>
                                 <span wire:loading.remove>Crear Categoría</span>
                                 <span wire:loading>

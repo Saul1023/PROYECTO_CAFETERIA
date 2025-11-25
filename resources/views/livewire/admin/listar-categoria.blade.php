@@ -1,177 +1,222 @@
-<div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-8">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div class="space-y-2">
-                    <h1 class="text-3xl font-bold text-gray-900">Gestión de Categorías</h1>
-                    <p class="text-gray-600">Administra las categorías de productos de la cafetería</p>
+<style>
+/* Estilos Personalizados para Listar Categorías (Alineados con Tailwind Teal) */
+:root {
+    --teal-600: #047878;
+    --teal-50: #f0fdfa;
+    --teal-500: #14b8a6;
+}
+
+.h2.text-teal {
+    color: var(--teal-600) !important;
+    font-weight: 800;
+    /* Asegura que el título principal se vea fuerte */
+}
+
+/* Botón Principal (Nueva Categoría) */
+.btn-teal {
+    background-color: var(--teal-600);
+    border-color: var(--teal-600);
+    color: white;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+.btn-teal:hover {
+    background-color: #0d9488;
+    /* Tono más oscuro de teal para hover */
+    border-color: #0d9488;
+    color: white;
+}
+
+.btn-teal:focus,
+.btn-teal:active {
+    box-shadow: 0 0 0 0.25rem rgba(4, 120, 120, 0.5) !important;
+}
+
+/* Botones de Acción (Editar) */
+.btn-outline-teal {
+    color: var(--teal-600);
+    border-color: var(--teal-600);
+    transition: all 0.15s ease-in-out;
+}
+
+.btn-outline-teal:hover {
+    background-color: var(--teal-600);
+    color: white;
+}
+
+/* Badges / Etiquetas (Contador de Productos) */
+.badge.bg-teal {
+    background-color: var(--teal-500) !important;
+    color: #047878;
+    /* Color oscuro para que el texto sea legible */
+    font-weight: 600;
+}
+
+/* Switch de Estado */
+.form-check-input:checked {
+    background-color: var(--teal-600);
+    border-color: var(--teal-600);
+}
+</style>
+
+<div class="container-fluid p-4">
+    <div class="row">
+        <div class="col-12">
+            <div
+                class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 border-bottom border-gray-200 pb-4">
+                <div class="mb-3 mb-md-0">
+                    <h1 class="h2 text-teal mb-1 d-flex align-items-center">
+                        <i class="bi bi-tags-fill text-teal me-2"></i>
+                        Gestión de Categorías
+                    </h1>
+                    <p class="text-muted mb-0">Administra las categorías de productos de la cafetería</p>
                 </div>
-                <a href="{{ route('categorias.crear') }}"
-                    class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700">
-                    <i class="bi bi-plus-circle mr-2"></i>
+                <a href="{{ route('categorias.crear') }}" class="btn btn-teal d-flex align-items-center shadow-sm">
+                    <i class="bi bi-plus-circle me-2"></i>
                     Nueva Categoría
                 </a>
             </div>
-        </div>
 
-        <!-- Filtros -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-            <div class="p-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Búsqueda -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="bi bi-search text-gray-400"></i>
+            <div class="card mb-4 shadow-sm border border-gray-100">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Buscar</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="bi bi-search text-teal"></i>
+                                </span>
+                                <input type="text" wire:model.live="search" placeholder="Buscar categorías..."
+                                    class="form-control border-start-0">
                             </div>
-                            <input type="text"
-                                wire:model.live="search"
-                                placeholder="Buscar categorías..."
-                                class="pl-10 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
                         </div>
-                    </div>
 
-                    <!-- Filtro por Estado -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Filtrar por Estado</label>
-                        <select wire:model.live="filterEstado" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
-                            <option value="">Todos los estados</option>
-                            <option value="1">Activas</option>
-                            <option value="0">Inactivas</option>
-                        </select>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Filtrar por Estado</label>
+                            <select wire:model.live="filterEstado" class="form-select">
+                                <option value="">Todos los estados</option>
+                                <option value="1">Activas</option>
+                                <option value="0">Inactivas</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Tabla de Categorías -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Imagen
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Categoría
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Productos
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Estado
-                            </th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Acciones
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($categorias as $categoria)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                @if($categoria->imagen_url)
-                                <img src="{{ asset('storage/' . $categoria->imagen_url) }}"
-                                    alt="{{ $categoria->nombre }}"
-                                    class="w-12 h-12 rounded-lg object-cover border border-gray-200">
-                                @else
-                                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200">
-                                    <i class="bi bi-image text-gray-400"></i>
-                                </div>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">{{ $categoria->nombre }}</div>
-                                    <div class="text-sm text-gray-500">{{ Str::limit($categoria->descripcion, 50) }}</div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    {{ $categoria->productos_count }} productos
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="relative inline-block w-10 h-5 rounded-full cursor-pointer">
-                                        <input type="checkbox"
-                                            {{ $categoria->estado ? 'checked' : '' }}
-                                            wire:click="toggleEstado({{ $categoria->id_categoria }})"
-                                            class="absolute w-10 h-5 rounded-full bg-gray-300 checked:bg-amber-500 transition-colors duration-200 appearance-none cursor-pointer">
-                                        <span class="absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform duration-200 transform checked:translate-x-5"></span>
-                                    </div>
-                                    <span class="ml-2 text-sm text-gray-600">
-                                        {{ $categoria->estado ? 'Activa' : 'Inactiva' }}
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex justify-end gap-2">
-                                    <a href="{{ route('categorias.editar', $categoria->id_categoria) }}"
-                                        class="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                                        <i class="bi bi-pencil mr-1"></i>
-                                        Editar
-                                    </a>
-                                    <button wire:click="confirmDelete({{ $categoria->id_categoria }})"
-                                        class="inline-flex items-center px-3 py-1 border border-red-300 rounded-md text-red-700 bg-white hover:bg-red-50">
-                                        <i class="bi bi-trash mr-1"></i>
-                                        Eliminar
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-12 text-center">
-                                <div class="text-gray-500">
-                                    <i class="bi bi-tags text-4xl mb-3 block"></i>
-                                    <h3 class="text-lg font-medium">No se encontraron categorías</h3>
-                                    <p class="mt-1">Intenta ajustar los filtros de búsqueda</p>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+            <div class="card shadow-lg border border-gray-100">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Imagen</th>
+                                    <th>Categoría</th>
+                                    <th>Productos</th>
+                                    <th>Estado</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($categorias as $categoria)
+                                <tr>
+                                    <td class="ps-4">
+                                        @if($categoria->imagen_url)
+                                        <img src="{{ asset('storage/' . $categoria->imagen_url) }}"
+                                            alt="{{ $categoria->nombre }}" class="rounded"
+                                            style="width: 50px; height: 50px; object-fit: cover;">
+                                        @else
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center border"
+                                            style="width: 50px; height: 50px;">
+                                            <i class="bi bi-image text-muted"></i>
+                                        </div>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong class="d-block text-dark">{{ $categoria->nombre }}</strong>
+                                            <small
+                                                class="text-muted">{{ Str::limit($categoria->descripcion, 50) }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-teal">
+                                            {{ $categoria->productos_count }} productos
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="form-check form-switch d-inline-block">
+                                            <input class="form-check-input" type="checkbox" role="switch"
+                                                {{ $categoria->estado ? 'checked' : '' }}
+                                                wire:click="toggleEstado({{ $categoria->id_categoria }})"
+                                                style="--bs-form-switch-bg: url(&quot;data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e&quot;);">
+                                        </div>
+                                        <small class="text-muted ms-2">
+                                            {{ $categoria->estado ? 'Activa' : 'Inactiva' }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <a href="{{ route('categorias.editar', $categoria->id_categoria) }}"
+                                                class="btn btn-sm btn-outline-teal d-flex align-items-center">
+                                                <i class="bi bi-pencil me-1"></i>
+                                                Editar
+                                            </a>
+                                            <button wire:click="confirmDelete({{ $categoria->id_categoria }})"
+                                                class="btn btn-sm btn-outline-danger d-flex align-items-center">
+                                                <i class="bi bi-trash me-1"></i>
+                                                Eliminar
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 bg-gray-50">
+                                        <div class="text-muted">
+                                            <i class="bi bi-tags display-4 d-block mb-3"></i>
+                                            <h5>No se encontraron categorías</h5>
+                                            <p class="mb-0">Intenta ajustar los filtros de búsqueda</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
 
-            <!-- Paginación -->
-            @if($categorias->hasPages())
-            <div class="bg-white px-6 py-3 border-t border-gray-200">
-                {{ $categorias->links() }}
+                    @if(isset($categorias) && method_exists($categorias, 'hasPages') && $categorias->hasPages())
+                    <div class="card-footer bg-white">
+                        {{ $categorias->links() }}
+                    </div>
+                    @endif
+                </div>
             </div>
-            @endif
         </div>
     </div>
 
-    <!-- Modal de Confirmación de Eliminación -->
     @if($categoriaToDelete)
-    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-4 border w-96 shadow-lg rounded-md bg-white">
-            <div class="mt-3 text-center">
-                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-                    <i class="bi bi-exclamation-triangle text-red-600 text-xl"></i>
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5)" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title text-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Confirmar Eliminación
+                    </h5>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mt-2">Confirmar Eliminación</h3>
-                <div class="mt-2 px-4 py-3">
-                    <p class="text-sm text-gray-500">
-                        ¿Estás seguro de que deseas eliminar esta categoría?
-                    </p>
-                    <p class="text-xs text-gray-400 mt-1">
-                        Esta acción no se puede deshacer.
-                    </p>
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-trash display-4 text-danger mb-3"></i>
+                    <h6>¿Estás seguro de que deseas eliminar esta categoría?</h6>
+                    <p class="text-muted mb-0">Esta acción no se puede deshacer.</p>
                 </div>
-                <div class="flex gap-3 justify-center px-4 py-3">
-                    <button wire:click="categoriaToDelete = null"
-                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
-                        Cancelar
-                    </button>
-                    <button wire:click="deleteCategoria"
-                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                <div class="modal-footer border-0 justify-content-center">
+                    <button wire:click="deleteCategoria" class="btn btn-danger">
+                        <i class="bi bi-trash me-2"></i>
                         Eliminar
+                    </button>
+                    <button wire:click="categoriaToDelete = null" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle me-2"></i>
+                        Cancelar
                     </button>
                 </div>
             </div>
@@ -179,16 +224,33 @@
     </div>
     @endif
 
-    <!-- Mensajes Flash -->
     @if (session()->has('success'))
-    <div class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg z-50">
-        {{ session('success') }}
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div class="toast show" role="alert">
+            <div class="toast-header bg-success text-white">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Éxito</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                {{ session('success') }}
+            </div>
+        </div>
     </div>
     @endif
 
     @if (session()->has('error'))
-    <div class="fixed bottom-4 right-4 bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg z-50">
-        {{ session('error') }}
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div class="toast show" role="alert">
+            <div class="toast-header bg-danger text-white">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong class="me-auto">Error</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                {{ session('error') }}
+            </div>
+        </div>
     </div>
     @endif
 </div>

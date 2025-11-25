@@ -59,12 +59,15 @@
                                 <!-- Selección de Mesa/Reservación -->
                                 @if($tipoConsumo === 'mesa')
                                 <div class="col-md-6">
-                                    <label class="form-label">Seleccionar Mesa/Reservación <span class="text-danger">*</span></label>
+                                    <label class="form-label">Seleccionar Mesa/Reservación <span
+                                            class="text-danger">*</span></label>
                                     <div class="d-flex gap-2">
-                                        <button type="button" wire:click="abrirSelectorMesa" class="btn btn-outline-primary flex-fill">
+                                        <button type="button" wire:click="abrirSelectorMesa"
+                                            class="btn btn-outline-primary flex-fill">
                                             <i class="bi bi-table me-1"></i> Mesa Disponible
                                         </button>
-                                        <button type="button" wire:click="abrirSelectorReservacion" class="btn btn-outline-success flex-fill">
+                                        <button type="button" wire:click="abrirSelectorReservacion"
+                                            class="btn btn-outline-success flex-fill">
                                             <i class="bi bi-calendar-check me-1"></i> Reservación
                                         </button>
                                     </div>
@@ -78,24 +81,26 @@
                                             <i class="bi bi-check-circle me-2"></i>
                                             <strong>Mesa seleccionada:</strong>
                                             @php
-                                                $mesa = \App\Models\Mesa::find($mesaSeleccionada);
+                                            $mesa = \App\Models\Mesa::find($mesaSeleccionada);
                                             @endphp
-                                            Mesa {{ $mesa->numero_mesa }} - {{ $mesa->ubicacion }} (Cap. {{ $mesa->capacidad }})
+                                            Mesa {{ $mesa->numero_mesa }} - {{ $mesa->ubicacion }} (Cap.
+                                            {{ $mesa->capacidad }})
 
                                             @if($reservacionSeleccionada)
-                                                @php
-                                                    $reservacion = \App\Models\Reservacion::find($reservacionSeleccionada);
-                                                @endphp
-                                                <span class="badge bg-success ms-2">Con Reservación</span>
-                                                <small class="d-block mt-1">
-                                                    Cliente: {{ $reservacion->usuario->nombre_completo }} |
-                                                    Monto a favor: Bs. {{ number_format($reservacion->monto_pago, 2) }}
-                                                </small>
+                                            @php
+                                            $reservacion = \App\Models\Reservacion::find($reservacionSeleccionada);
+                                            @endphp
+                                            <span class="badge bg-success ms-2">Con Reservación</span>
+                                            <small class="d-block mt-1">
+                                                Cliente: {{ $reservacion->usuario->nombre_completo }} |
+                                                Monto a favor: Bs. {{ number_format($reservacion->monto_pago, 2) }}
+                                            </small>
                                             @else
-                                                <span class="badge bg-primary ms-2">Sin Reservación</span>
+                                            <span class="badge bg-primary ms-2">Sin Reservación</span>
                                             @endif
                                         </div>
-                                        <button type="button" wire:click="limpiarSeleccion" class="btn btn-sm btn-outline-danger">
+                                        <button type="button" wire:click="limpiarSeleccion"
+                                            class="btn btn-sm btn-outline-danger">
                                             <i class="bi bi-x-circle"></i> Cambiar
                                         </button>
                                     </div>
@@ -119,11 +124,13 @@
                                             </option>
                                             @endforeach
                                         </select>
-                                        <button wire:click="abrirModalCliente" type="button" class="btn btn-outline-primary">
+                                        <button wire:click="abrirModalCliente" type="button"
+                                            class="btn btn-outline-primary">
                                             <i class="bi bi-person-plus"></i> Nuevo
                                         </button>
                                     </div>
-                                    <small class="text-muted">Selecciona un cliente existente o registra uno nuevo</small>
+                                    <small class="text-muted">Selecciona un cliente existente o registra uno
+                                        nuevo</small>
                                 </div>
 
                                 <!-- Información del Cliente Seleccionado -->
@@ -169,13 +176,11 @@
                                         <span class="input-group-text">
                                             <i class="bi bi-search"></i>
                                         </span>
-                                        <input type="text" wire:model.live.debounce.300ms="search"
-                                            class="form-control"
+                                        <input type="text" wire:model.live.debounce.300ms="search" class="form-control"
                                             placeholder="Buscar por nombre...">
                                         @if($search)
-                                        <button class="btn btn-outline-secondary"
-                                                type="button"
-                                                wire:click="$set('search', '')">
+                                        <button class="btn btn-outline-secondary" type="button"
+                                            wire:click="$set('search', '')">
                                             <i class="bi bi-x-lg"></i>
                                         </button>
                                         @endif
@@ -205,27 +210,24 @@
                                     @if($search)
                                     <span class="badge bg-primary ms-1">
                                         Búsqueda: "{{ $search }}"
-                                        <button type="button"
-                                                class="btn-close btn-close-white ms-1"
-                                                style="font-size: 0.6rem;"
-                                                wire:click="$set('search', '')"></button>
+                                        <button type="button" class="btn-close btn-close-white ms-1"
+                                            style="font-size: 0.6rem;" wire:click="$set('search', '')"></button>
                                     </span>
                                     @endif
                                     @if($categoriaSeleccionada !== 'todas')
                                     @php
-                                        $categoriaNombre = $categorias->firstWhere('id_categoria', $categoriaSeleccionada)->nombre ?? '';
+                                    $categoriaNombre = $categorias->firstWhere('id_categoria',
+                                    $categoriaSeleccionada)->nombre ?? '';
                                     @endphp
                                     <span class="badge bg-info ms-1">
                                         Categoría: {{ $categoriaNombre }}
-                                        <button type="button"
-                                                class="btn-close btn-close-white ms-1"
-                                                style="font-size: 0.6rem;"
-                                                wire:click="$set('categoriaSeleccionada', 'todas')"></button>
+                                        <button type="button" class="btn-close btn-close-white ms-1"
+                                            style="font-size: 0.6rem;"
+                                            wire:click="$set('categoriaSeleccionada', 'todas')"></button>
                                     </span>
                                     @endif
-                                    <button type="button"
-                                            class="btn btn-sm btn-outline-secondary ms-2"
-                                            wire:click="$set('search', ''); $set('categoriaSeleccionada', 'todas')">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ms-2"
+                                        wire:click="$set('search', ''); $set('categoriaSeleccionada', 'todas')">
                                         <i class="bi bi-x-circle me-1"></i> Limpiar filtros
                                     </button>
                                 </small>
@@ -237,12 +239,12 @@
                             <ul class="nav nav-pills mb-4 flex-wrap" id="categoriasTab" role="tablist">
                                 @foreach($productos as $categoria => $productosCategoria)
                                 <li class="nav-item mb-2" role="presentation">
-                                    <button class="nav-link {{ $loop->first ? 'active' : '' }}"
-                                            data-bs-toggle="pill"
-                                            data-bs-target="#cat-{{ \Illuminate\Support\Str::slug($categoria) }}"
-                                            type="button">
+                                    <button class="nav-link {{ $loop->first ? 'active' : '' }}" data-bs-toggle="pill"
+                                        data-bs-target="#cat-{{ \Illuminate\Support\Str::slug($categoria) }}"
+                                        type="button">
                                         {{ $categoria ?: 'Sin Categoría' }}
-                                        <span class="badge bg-light text-dark ms-1">{{ count($productosCategoria) }}</span>
+                                        <span
+                                            class="badge bg-light text-dark ms-1">{{ count($productosCategoria) }}</span>
                                     </button>
                                 </li>
                                 @endforeach
@@ -266,7 +268,8 @@
                                                     @else
                                                     <div class="bg-light rounded mb-3 d-flex align-items-center justify-content-center"
                                                         style="height: 100px;">
-                                                        <i class="bi bi-cup-hot text-muted" style="font-size: 2rem;"></i>
+                                                        <i class="bi bi-cup-hot text-muted"
+                                                            style="font-size: 2rem;"></i>
                                                     </div>
                                                     @endif
 
@@ -275,7 +278,8 @@
                                                     @if($producto['tiene_promocion'])
                                                     <div class="mb-2">
                                                         <small class="text-decoration-line-through text-muted">
-                                                            Bs. {{ number_format($producto['precio_original'] ?? $producto['precio'], 2) }}
+                                                            Bs.
+                                                            {{ number_format($producto['precio_original'] ?? $producto['precio'], 2) }}
                                                         </small>
                                                         <span class="badge bg-success ms-1">
                                                             <i class="bi bi-tag-fill"></i> Oferta
@@ -288,14 +292,16 @@
                                                     </p>
 
                                                     <p class="card-text small mb-2">
-                                                        <span class="badge {{ $producto['stock'] > 10 ? 'bg-success' : ($producto['stock'] > 0 ? 'bg-warning' : 'bg-danger') }}">
+                                                        <span
+                                                            class="badge {{ $producto['stock'] > 10 ? 'bg-success' : ($producto['stock'] > 0 ? 'bg-warning' : 'bg-danger') }}">
                                                             <i class="bi bi-box me-1"></i>
                                                             Stock: {{ $producto['stock'] }}
                                                         </span>
                                                     </p>
 
                                                     @if($producto['descripcion'])
-                                                    <p class="card-text small text-muted mb-3" style="font-size: 0.75rem;">
+                                                    <p class="card-text small text-muted mb-3"
+                                                        style="font-size: 0.75rem;">
                                                         {{ Str::limit($producto['descripcion'], 50) }}
                                                     </p>
                                                     @endif
@@ -324,7 +330,7 @@
                                     No hay productos que coincidan con los filtros aplicados.
                                 </p>
                                 <button class="btn btn-outline-primary mt-2"
-                                        wire:click="$set('search', ''); $set('categoriaSeleccionada', 'todas')">
+                                    wire:click="$set('search', ''); $set('categoriaSeleccionada', 'todas')">
                                     <i class="bi bi-arrow-clockwise me-2"></i>
                                     Ver todos los productos
                                 </button>
@@ -418,7 +424,8 @@
                                         <strong class="text-success">Descuento Promociones:</strong>
                                     </div>
                                     <div class="col-6 text-end">
-                                        <strong class="text-success">-Bs. {{ number_format($descuentoPromociones, 2) }}</strong>
+                                        <strong class="text-success">-Bs.
+                                            {{ number_format($descuentoPromociones, 2) }}</strong>
                                     </div>
                                     @endif
 
@@ -434,14 +441,15 @@
 
                                     @if($reservacionSeleccionada)
                                     @php
-                                        $reservacion = \App\Models\Reservacion::find($reservacionSeleccionada);
+                                    $reservacion = \App\Models\Reservacion::find($reservacionSeleccionada);
                                     @endphp
                                     <div class="col-6">
                                         <strong class="text-primary">Monto Reservación:</strong>
                                         <small class="d-block text-muted">Código: {{ $reservacion->codigo_qr }}</small>
                                     </div>
                                     <div class="col-6 text-end">
-                                        <strong class="text-primary">-Bs. {{ number_format($reservacion->monto_pago, 2) }}</strong>
+                                        <strong class="text-primary">-Bs.
+                                            {{ number_format($reservacion->monto_pago, 2) }}</strong>
                                     </div>
                                     @endif
 
@@ -461,7 +469,8 @@
                                         <div class="alert alert-success py-2 mb-0">
                                             <small>
                                                 <i class="bi bi-info-circle me-1"></i>
-                                                <strong>Con Reservación:</strong> El cliente ya pagó Bs. {{ number_format($reservacion->monto_pago, 2) }}
+                                                <strong>Con Reservación:</strong> El cliente ya pagó Bs.
+                                                {{ number_format($reservacion->monto_pago, 2) }}
                                             </small>
                                         </div>
                                     </div>
@@ -619,15 +628,15 @@
                                 <i class="bi bi-table me-2"></i>
                                 Mesas Disponibles - {{ date('d/m/Y') }}
                             </h5>
-                            <button wire:click="cerrarSelectores" type="button" class="btn-close btn-close-white"></button>
+                            <button wire:click="cerrarSelectores" type="button"
+                                class="btn-close btn-close-white"></button>
                         </div>
                         <div class="modal-body">
                             @if(count($mesasDisponiblesHoy) > 0)
                             <div class="row g-3">
                                 @foreach($mesasDisponiblesHoy as $mesa)
                                 <div class="col-md-6">
-                                    <div class="card border-primary h-100 hover-shadow"
-                                        style="cursor: pointer;"
+                                    <div class="card border-primary h-100 hover-shadow" style="cursor: pointer;"
                                         wire:click="seleccionarMesaDisponible({{ $mesa->id_mesa }})">
                                         <div class="card-body text-center">
                                             <i class="bi bi-table display-4 text-primary mb-3"></i>
@@ -678,7 +687,8 @@
                                 <i class="bi bi-calendar-check me-2"></i>
                                 Reservaciones de Hoy - {{ date('d/m/Y') }}
                             </h5>
-                            <button wire:click="cerrarSelectores" type="button" class="btn-close btn-close-white"></button>
+                            <button wire:click="cerrarSelectores" type="button"
+                                class="btn-close btn-close-white"></button>
                         </div>
                         <div class="modal-body">
                             @if(count($reservacionesHoy) > 0)
@@ -701,19 +711,23 @@
                                             <td>
                                                 <strong>#{{ $reservacion->id_reservacion }}</strong>
                                                 @if($reservacion->codigo_qr)
-                                                <br><small class="badge bg-secondary">{{ $reservacion->codigo_qr }}</small>
+                                                <br><small
+                                                    class="badge bg-secondary">{{ $reservacion->codigo_qr }}</small>
                                                 @endif
                                             </td>
                                             <td>
-                                                <span class="badge bg-info">Mesa {{ $reservacion->mesa->numero_mesa }}</span>
-                                                <br><small class="text-muted">{{ $reservacion->mesa->ubicacion }}</small>
+                                                <span class="badge bg-info">Mesa
+                                                    {{ $reservacion->mesa->numero_mesa }}</span>
+                                                <br><small
+                                                    class="text-muted">{{ $reservacion->mesa->ubicacion }}</small>
                                             </td>
                                             <td>
                                                 @if($reservacion->usuario)
                                                 <strong>{{ $reservacion->usuario->nombre_completo }}</strong>
                                                 <br><small class="text-muted">{{ $reservacion->usuario->email }}</small>
                                                 @if($reservacion->usuario->telefono)
-                                                <br><small><i class="bi bi-telephone me-1"></i>{{ $reservacion->usuario->telefono }}</small>
+                                                <br><small><i
+                                                        class="bi bi-telephone me-1"></i>{{ $reservacion->usuario->telefono }}</small>
                                                 @endif
                                                 @else
                                                 <span class="text-muted">Sin cliente</span>
@@ -722,27 +736,31 @@
                                             <td>
                                                 <strong>{{ \Carbon\Carbon::parse($reservacion->hora_reservacion)->format('H:i') }}</strong>
                                                 @php
-                                                    $horaReservacion = \Carbon\Carbon::parse($reservacion->hora_reservacion);
-                                                    $ahora = \Carbon\Carbon::now();
-                                                    $diff = $ahora->diffInMinutes($horaReservacion, false);
+                                                $horaReservacion =
+                                                \Carbon\Carbon::parse($reservacion->hora_reservacion);
+                                                $ahora = \Carbon\Carbon::now();
+                                                $diff = $ahora->diffInMinutes($horaReservacion, false);
                                                 @endphp
-                                                @if($diff < 0)
-                                                    <br><small class="text-danger">Hace {{ abs($diff) }} min</small>
-                                                @elseif($diff < 30)
-                                                    <br><small class="text-warning">En {{ $diff }} min</small>
-                                                @else
-                                                    <br><small class="text-muted">En {{ $diff }} min</small>
-                                                @endif
+                                                @if($diff < 0) <br><small class="text-danger">Hace {{ abs($diff) }}
+                                                        min</small>
+                                                    @elseif($diff < 30) <br><small class="text-warning">En {{ $diff }}
+                                                            min</small>
+                                                        @else
+                                                        <br><small class="text-muted">En {{ $diff }} min</small>
+                                                        @endif
                                             </td>
                                             <td>
-                                                <span class="badge bg-secondary">{{ $reservacion->numero_personas }}</span>
+                                                <span
+                                                    class="badge bg-secondary">{{ $reservacion->numero_personas }}</span>
                                             </td>
                                             <td>
-                                                <strong class="text-success">Bs. {{ number_format($reservacion->monto_pago, 2) }}</strong>
+                                                <strong class="text-success">Bs.
+                                                    {{ number_format($reservacion->monto_pago, 2) }}</strong>
                                             </td>
                                             <td class="text-center">
-                                                <button wire:click="seleccionarReservacion({{ $reservacion->id_reservacion }})"
-                                                        class="btn btn-sm btn-success">
+                                                <button
+                                                    wire:click="seleccionarReservacion({{ $reservacion->id_reservacion }})"
+                                                    class="btn btn-sm btn-success">
                                                     <i class="bi bi-check-circle me-1"></i>
                                                     Seleccionar
                                                 </button>
@@ -756,7 +774,8 @@
                             <div class="text-center py-5">
                                 <i class="bi bi-calendar-x display-4 text-muted"></i>
                                 <h5 class="mt-3">No hay reservaciones para hoy</h5>
-                                <p class="text-muted">No se encontraron reservaciones confirmadas para la fecha actual</p>
+                                <p class="text-muted">No se encontraron reservaciones confirmadas para la fecha actual
+                                </p>
                             </div>
                             @endif
                         </div>
@@ -868,7 +887,8 @@
                                                     {{ number_format($comprobanteData['descuento_manual'], 2) }}</span>
                                             </div>
                                             @endif
-                                            @if(isset($comprobanteData['reservacion']) && $comprobanteData['reservacion'])
+                                            @if(isset($comprobanteData['reservacion']) &&
+                                            $comprobanteData['reservacion'])
                                             <div class="d-flex justify-content-between text-primary">
                                                 <span>
                                                     Monto Reservación:
@@ -876,7 +896,8 @@
                                                         Código: {{ $comprobanteData['reservacion']['codigo_qr'] }}
                                                     </small>
                                                 </span>
-                                                <span>-Bs. {{ number_format($comprobanteData['reservacion']['monto_pago'], 2) }}</span>
+                                                <span>-Bs.
+                                                    {{ number_format($comprobanteData['reservacion']['monto_pago'], 2) }}</span>
                                             </div>
                                             @endif
                                             <div
@@ -977,22 +998,22 @@ function imprimirComprobante() {
     ventana.document.close();
     ventana.print();
 }
-@push('styles')
-<style>
-.hover-shadow:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-    transform: translateY(-2px);
-    transition: all 0.3s ease;
-}
+@push('styles') <
+    style >
+    .hover - shadow: hover {
+        box - shadow: 0 0.5 rem 1 rem rgba(0, 0, 0, 0.15) !important;
+        transform: translateY(-2 px);
+        transition: all 0.3 s ease;
+    }
 
-.hover-card {
-    transition: all 0.3s ease;
-}
+    .hover - card {
+        transition: all 0.3 s ease;
+    }
 
-.hover-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    border-color: #0d6efd !important;
+    .hover - card: hover {
+        transform: translateY(-5 px);
+        box - shadow: 0 0.5 rem 1 rem rgba(0, 0, 0, 0.15);
+        border - color: #0d6efd !important;
 }
 
 .product-card .btn-primary:hover {
@@ -1005,9 +1026,9 @@ function imprimirComprobante() {
 }
 
 .nav-pills .nav-link.active {
-    background-color: #0d6efd;
-}
-</style>
+    background-color: # 0 d6efd;
+    } <
+    /style>
 @endpush
 </script>
 @endpush
