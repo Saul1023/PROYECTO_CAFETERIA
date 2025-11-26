@@ -32,6 +32,7 @@ class VentaRapida extends Component
     public $observaciones = '';
     public $tipoConsumo = 'mesa';
     public $mesaSeleccionada = null;
+    public $numeroPersonas = 1; // Agregar esta línea después de las otras propiedades públicas
     public $mesas = [];
     public $clientes = [];
     public $clienteSeleccionado = null;
@@ -140,8 +141,7 @@ class VentaRapida extends Component
     private function cargarMesas()
     {
         $this->mesas = Mesa::where('activa', true)
-            ->where('estado', 'disponible')
-            ->get(['id_mesa', 'numero_mesa', 'capacidad', 'ubicacion']);
+            ->get(['id_mesa', 'numero_mesa', 'capacidad', 'ubicacion']); // QUITAR ->where('estado', 'disponible')
     }
 
     private function cargarClientes()
@@ -160,13 +160,12 @@ class VentaRapida extends Component
 
        // Log::info('Clientes cargados: ' . $this->clientes->count());
     }
-
     private function cargarMesasDisponibles()
     {
         $now = Carbon::now();
         $horaActual = $now->format('H:i:s');
 
-        // Obtener solo las mesas que están reservadas EN ESTE MOMENTO (hora actual)
+        // Obtener solo las mesas que están reservadas EN ESTE MOMENTO (dentro de ventana de 2 horas)
         $mesasReservadasAhora = Reservacion::whereDate('fecha_reservacion', today())
             ->where('estado', 'confirmada')
             ->where('hora_reservacion', '<=', $horaActual)
@@ -174,32 +173,60 @@ class VentaRapida extends Component
             ->pluck('id_mesa')
             ->toArray();
 
-        // Mostrar TODAS las mesas activas y disponibles, excepto las que están reservadas AHORA
-        $this->mesasDisponiblesHoy = Mesa::where('activa', true)
-            ->where('estado', 'disponible')
-            ->whereNotIn('id_mesa', $mesasReservadasAhora)
+        // Obtener mesas ocupadas actualmente
+        $mesasOcupadas = Mesa::where('estado', 'ocupada')
+            ->pluck('id_mesa')
+            ->toArray();
+
+        // Combinar ambas listas
+        $mesasNoDisponibles = array_merge($mesasReservadasAhora, $mesasOcupadas);
+
+        // Construir query base - solo excluir mesas ocupadas y reservadas en este momento
+        $query = Mesa::where('activa', true)
+            ->whereNotIn('id_mesa', $mesasNoDisponibles);
+
+        // Filtrar por capacidad según número de personas
+        if ($this->numeroPersonas > 0) {
+            $query->where('capacidad', '>=', $this->numeroPersonas);
+        }
+
+        $this->mesasDisponiblesHoy = $query->orderBy('capacidad', 'asc')
+            ->orderBy('numero_mesa')
             ->get(['id_mesa', 'numero_mesa', 'capacidad', 'ubicacion']);
 
-       // Log::info('Mesas disponibles cargadas: ' . $this->mesasDisponiblesHoy->count());
-    }
+    /* Log::info("Mesas cargadas: Total activas=" . Mesa::where('activa', true)->count() .
+                ", Reservadas ahora=" . count($mesasReservadasAhora) .
+                ", Ocupadas=" . count($mesasOcupadas) .
+                ", Disponibles=" . $this->mesasDisponiblesHoy->count() .
+                " para {$this->numeroPersonas} personas");*/
+}
 
+    public function updatedNumeroPersonas()
+    {
+        $this->cargarMesasDisponibles();
+    }
     private function cargarReservacionesHoy()
     {
         $now = Carbon::now();
+        $horaActual = $now->format('H:i:s');
 
-        // Mostrar TODAS las reservaciones confirmadas de hoy
+        // Actualizar reservaciones que no asistieron (más de 1 hora después de la hora de reservación)
+        Reservacion::whereDate('fecha_reservacion', today())
+            ->where('estado', 'confirmada')
+            ->where('hora_reservacion', '<', $now->copy()->subHour()->format('H:i:s'))
+            ->update([
+                'estado' => 'no_asistio',
+                'fecha_actualizacion' => now()
+            ]);
+
+        // Mostrar solo las reservaciones confirmadas que aún son válidas
         $this->reservacionesHoy = Reservacion::with(['mesa', 'usuario'])
             ->whereDate('fecha_reservacion', today())
             ->where('estado', 'confirmada')
             ->orderBy('hora_reservacion', 'asc')
             ->get();
 
-        //Log::info('Reservaciones de hoy cargadas: ' . $this->reservacionesHoy->count());
-
-        // Debug: mostrar las reservaciones encontradas
-        foreach($this->reservacionesHoy as $res) {
-            Log::info("Reservación #{$res->id_reservacion} - Mesa: {$res->mesa->numero_mesa} - Hora: {$res->hora_reservacion}");
-        }
+       // Log::info('Reservaciones de hoy cargadas: ' . $this->reservacionesHoy->count());
     }
     public function abrirSelectorMesa()
     {
@@ -266,6 +293,7 @@ class VentaRapida extends Component
         $this->clienteSeleccionado = null;
         $this->tipoSeleccion = null;
         $this->observaciones = '';
+        $this->numeroPersonas = 1; // Resetear a 2 personas
         $this->calcularTotales();
     }
 
@@ -489,12 +517,30 @@ class VentaRapida extends Component
 
     public function finalizarVenta()
     {
-    $this->logAction('FINALIZAR VENTA START');
+        $this->logAction('FINALIZAR VENTA START');
 
-        $this->validate();
+        // Validación más específica
+        $this->validate([
+            'mesaSeleccionada' => 'required',
+            'metodoPago' => 'required',
+            'carrito' => 'required|array|min:1',
+        ], [
+            'mesaSeleccionada.required' => 'Debes seleccionar una mesa o reservación antes de continuar',
+            'metodoPago.required' => 'Debes seleccionar un método de pago',
+            'carrito.required' => 'El carrito está vacío',
+            'carrito.min' => 'Debes agregar al menos un producto al carrito',
+        ]);
+
+        // Validación adicional específica
+        if ($this->tipoConsumo === 'mesa' && !$this->mesaSeleccionada) {
+            session()->flash('error', 'Por favor selecciona una mesa o reservación antes de finalizar la venta');
+            $this->dispatch('validacionError');
+            return;
+        }
 
         if (empty($this->carrito)) {
-            session()->flash('error', 'El carrito está vacío');
+            session()->flash('error', 'El carrito está vacío. Agrega productos antes de continuar');
+            $this->dispatch('validacionError');
             return;
         }
 
@@ -530,14 +576,15 @@ class VentaRapida extends Component
             // Generar comprobante
             $this->generarComprobante($ventaData);
 
+            // Recargar las listas para reflejar cambios
+            $this->cargarReservacionesHoy();
+            $this->cargarMesasDisponibles();
+
             session()->flash('success', 'Venta registrada exitosamente. Total: Bs. ' . number_format($this->total, 2));
 
-            // No resetear la venta inmediatamente para mostrar el comprobante
-            // $this->resetVenta();
-
-        } catch (Exception $e) {
-            $this->logError('ERROR EN VENTA', $e);
-            session()->flash('error', 'Error al procesar la venta: ' . $e->getMessage());
+        } catch (\Exception $e) {
+        session()->flash('error', 'Error al procesar la venta: ' . $e->getMessage());
+        $this->dispatch('validacionError');
         }
     }
 
@@ -558,6 +605,21 @@ class VentaRapida extends Component
             'observaciones' => $this->observaciones,
             'fecha_pedido' => now(),
         ]);
+    }
+    public function incrementarPersonas()
+    {
+        if ($this->numeroPersonas < 20) {
+            $this->numeroPersonas++;
+            $this->cargarMesasDisponibles();
+        }
+    }
+
+    public function decrementarPersonas()
+    {
+        if ($this->numeroPersonas > 1) {
+            $this->numeroPersonas--;
+            $this->cargarMesasDisponibles();
+        }
     }
 
     private function procesarItemsCarrito($pedido)
@@ -597,12 +659,11 @@ class VentaRapida extends Component
 
         $this->logAction("Stock actualizado: {$producto->nombre} {$stockAntes} -> {$producto->stock}");
     }
-
     private function crearVenta()
     {
         $numeroVenta = 'VENTA-' . Str::upper(Str::random(8));
 
-        return Venta::create([
+        $venta = Venta::create([
             'numero_venta' => $numeroVenta,
             'id_usuario' => Auth::id(),
             'id_cliente' => $this->clienteSeleccionado,
@@ -615,18 +676,19 @@ class VentaRapida extends Component
             'observaciones' => $this->observaciones,
             'fecha_venta' => now(),
         ]);
-            // Si hay reservación, actualizar su estado
+
+        // Si hay reservación, actualizar su estado a completada
         if ($this->reservacionSeleccionada) {
             Reservacion::find($this->reservacionSeleccionada)->update([
                 'estado' => 'completada',
                 'fecha_actualizacion' => now()
             ]);
+
+           // Log::info("Reservación #{$this->reservacionSeleccionada} marcada como completada");
         }
 
         return $venta;
     }
-
-
     private function generarComprobante($ventaData)
     {
         try {

@@ -163,11 +163,22 @@
                             </h5>
 
                             <div class="alert alert-info">
-                                <i class="bi bi-cash-coin me-2"></i>
-                                <strong>Monto de reserva: Bs. 30.00</strong>
-                                <p class="mb-0 mt-2 small">
-                                    Realiza el pago y sube una foto del comprobante. Tu reserva será confirmada por el administrador una vez verificado el pago.
-                                </p>
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <i class="bi bi-cash-coin me-2"></i>
+                                        <strong>Monto de reserva: Bs. 30.00</strong>
+                                        <p class="mb-0 mt-2 small">
+                                            Realiza el pago y sube una foto del comprobante. Tu reserva será confirmada por el administrador una vez verificado el pago.
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4 text-center mt-3 mt-md-0">
+                                        <img src="/img/escanear.png"
+                                            alt="Código QR para pago"
+                                            class="img-fluid rounded"
+                                            style="max-width: 150px;">
+                                        <p class="small text-muted mt-2 mb-0">Escanea para pagar</p>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="mb-3">

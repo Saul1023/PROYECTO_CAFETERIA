@@ -75,7 +75,7 @@ class ListarReservacion extends Component
 
         // Establecer valores por defecto
         $this->fecha_reservacion = Carbon::today()->format('Y-m-d');
-        $this->hora_reservacion = '12:00';
+        $this->hora_reservacion = '08:00';
         $this->monto_pago = 30.00;
     }
 
@@ -120,13 +120,47 @@ class ListarReservacion extends Component
         $fechaSeleccionada = Carbon::parse($this->fecha_reservacion);
         $esHoy = $fechaSeleccionada->isToday();
 
+        // DEBUG - Temporal para ver qué está pasando
+        logger('=== DEBUG VERIFICAR DISPONIBILIDAD ===', [
+            'fecha_seleccionada' => $fechaSeleccionada->toDateTimeString(),
+            'es_hoy' => $esHoy ? 'SI' : 'NO',
+            'hora_actual_servidor' => Carbon::now()->format('Y-m-d H:i:s'),
+            'hora_limite' => Carbon::now()->addHour()->format('Y-m-d H:i:s'),
+            'timezone' => config('app.timezone'),
+            'fecha_hoy' => Carbon::today()->format('Y-m-d'),
+        ]);
+
         if ($esHoy) {
             $horaActual = Carbon::now();
-            $horariosRestaurante = array_filter($horariosRestaurante, function($horario) use ($horaActual) {
-                $horarioCarbon = Carbon::parse($horario);
-                // Solo mostrar horarios que faltan al menos 2 horas
-                return $horarioCarbon->greaterThan($horaActual->copy()->addHours(2));
+            $horaLimite = $horaActual->copy()->addHour();
+
+            logger('Hora actual y límite:', [
+                'hora_actual' => $horaActual->format('Y-m-d H:i:s'),
+                'hora_limite' => $horaLimite->format('Y-m-d H:i:s'),
+            ]);
+
+            $horariosRestaurante = array_filter($horariosRestaurante, function($horario) use ($horaLimite, $fechaSeleccionada) {
+                // Crear el Carbon con la fecha y hora completa
+                $horarioCompleto = Carbon::parse($fechaSeleccionada->format('Y-m-d') . ' ' . $horario . ':00');
+
+                // Permitir horarios que sean mayores o iguales a la hora límite (ahora + 1 hora)
+                $disponible = $horarioCompleto->greaterThanOrEqualTo($horaLimite);
+
+                // DEBUG - Ver cada horario
+                logger("Evaluando horario $horario", [
+                    'horario_completo' => $horarioCompleto->format('Y-m-d H:i:s'),
+                    'hora_limite' => $horaLimite->format('Y-m-d H:i:s'),
+                    'disponible' => $disponible ? 'SI' : 'NO',
+                    'diferencia_minutos' => $horaLimite->diffInMinutes($horarioCompleto, false)
+                ]);
+
+                return $disponible;
             });
+
+            logger('Horarios disponibles después del filtro:', [
+                'count' => count($horariosRestaurante),
+                'horarios' => array_values($horariosRestaurante)
+            ]);
 
             // Si no hay horarios disponibles para hoy
             if (empty($horariosRestaurante)) {
@@ -231,13 +265,6 @@ class ListarReservacion extends Component
         if (!$this->isEditing) {
             $fechaSeleccionada = Carbon::parse($this->fecha_reservacion);
 
-            // DEBUG - Temporal para ver qué está pasando
-            logger('DEBUG Reservación:', [
-                'fecha_seleccionada' => $fechaSeleccionada->toDateString(),
-                'es_hoy' => $fechaSeleccionada->isToday() ? 'SI' : 'NO',
-                'fecha_hoy' => Carbon::today()->toDateString(),
-            ]);
-
             // SOLO validar si es para HOY
             if ($fechaSeleccionada->isToday()) {
                 $fechaHoraReserva = Carbon::parse($this->fecha_reservacion . ' ' . $horaFormateada);
@@ -247,15 +274,12 @@ class ListarReservacion extends Component
                     return;
                 }
 
-                // Validar que falten al menos 2 horas SOLO para hoy
+                // Validar que falte al menos 1 hora SOLO para hoy
                 $horasRestantes = Carbon::now()->diffInHours($fechaHoraReserva, false);
-                if ($horasRestantes < 2) {
-                    session()->flash('error', 'Debe reservar con al menos 2 horas de anticipación para reservas del día de hoy. (Faltan ' . $horasRestantes . ' horas)');
+                if ($horasRestantes < 1) {
+                    session()->flash('error', 'Debe reservar con al menos 1 hora de anticipación para reservas del día de hoy.');
                     return;
                 }
-            } else {
-                // DEBUG - Para ver que entra aquí en fechas futuras
-                logger('Es fecha futura, no se validan las 2 horas');
             }
         }
 
@@ -363,8 +387,8 @@ class ListarReservacion extends Component
 
         $this->estado = 'confirmada';
         $this->fecha_reservacion = Carbon::today()->format('Y-m-d');
-        $this->hora_reservacion = '19:00';
-        $this->numero_personas = 2;
+        $this->hora_reservacion = '08:00';
+        $this->numero_personas = 1;
         $this->monto_pago = 30.00;
         $this->mesasDisponibles = [];
         $this->mostrarDisponibilidad = false;

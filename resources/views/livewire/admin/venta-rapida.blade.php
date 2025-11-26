@@ -1,6 +1,4 @@
-@push('styles')
-<link href="{{ asset('css/venta-rapida.css') }}" rel="stylesheet">
-@endpush
+
 
 <div class="container-fluid p-4">
     <div class="row">
@@ -50,62 +48,74 @@
                                 <!-- Tipo de Consumo -->
                                 <div class="col-md-6">
                                     <label class="form-label">Tipo de Consumo <span class="text-danger">*</span></label>
-                                    <select wire:model.live="tipoConsumo" class="form-select">
+                                    <select wire:model.live="tipoConsumo" class="form-select @error('tipoConsumo') is-invalid @enderror">
                                         <option value="mesa">En Mesa</option>
-                                        <option value="para_llevar">Para Llevar</option>
                                     </select>
+                                    @error('tipoConsumo')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
-
                                 <!-- Selección de Mesa/Reservación -->
                                 @if($tipoConsumo === 'mesa')
-                                <div class="col-md-6">
-                                    <label class="form-label">Seleccionar Mesa/Reservación <span
-                                            class="text-danger">*</span></label>
-                                    <div class="d-flex gap-2">
-                                        <button type="button" wire:click="abrirSelectorMesa"
-                                            class="btn btn-outline-primary flex-fill">
-                                            <i class="bi bi-table me-1"></i> Mesa Disponible
-                                        </button>
-                                        <button type="button" wire:click="abrirSelectorReservacion"
-                                            class="btn btn-outline-success flex-fill">
-                                            <i class="bi bi-calendar-check me-1"></i> Reservación
-                                        </button>
+                                <!-- Número de Personas -->
+                                    <div class="col-md-12">
                                     </div>
-                                </div>
-
-                                <!-- Mostrar Mesa Seleccionada -->
-                                @if($mesaSeleccionada)
-                                <div class="col-12">
-                                    <div class="alert alert-info d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <i class="bi bi-check-circle me-2"></i>
-                                            <strong>Mesa seleccionada:</strong>
-                                            @php
-                                            $mesa = \App\Models\Mesa::find($mesaSeleccionada);
-                                            @endphp
-                                            Mesa {{ $mesa->numero_mesa }} - {{ $mesa->ubicacion }} (Cap.
-                                            {{ $mesa->capacidad }})
-
-                                            @if($reservacionSeleccionada)
-                                            @php
-                                            $reservacion = \App\Models\Reservacion::find($reservacionSeleccionada);
-                                            @endphp
-                                            <span class="badge bg-success ms-2">Con Reservación</span>
-                                            <small class="d-block mt-1">
-                                                Cliente: {{ $reservacion->usuario->nombre_completo }} |
-                                                Monto a favor: Bs. {{ number_format($reservacion->monto_pago, 2) }}
-                                            </small>
-                                            @else
-                                            <span class="badge bg-primary ms-2">Sin Reservación</span>
-                                            @endif
+                                    <!-- Alerta cuando no hay mesa seleccionada -->
+                                    @if(!$mesaSeleccionada)
+                                    <div class="col-12">
+                                        <div class="alert alert-warning d-flex align-items-center">
+                                            <i class="bi bi-exclamation-triangle me-2"></i>
+                                            <span>Por favor selecciona una <strong>Mesa Disponible</strong> o una <strong>Reservación</strong> para continuar con la venta</span>
                                         </div>
-                                        <button type="button" wire:click="limpiarSeleccion"
-                                            class="btn btn-sm btn-outline-danger">
-                                            <i class="bi bi-x-circle"></i> Cambiar
-                                        </button>
                                     </div>
-                                </div>
-                                @endif
+                                    @endif
+                                    <div class="col-md-6">
+                                        <label class="form-label">Seleccionar Mesa/Reservación <span class="text-danger">*</span></label>
+                                        <div class="d-flex gap-2">
+                                            <button type="button" wire:click="abrirSelectorMesa"
+                                                class="btn btn-outline-primary flex-fill">
+                                                <i class="bi bi-table me-1"></i> Mesa Disponible
+                                            </button>
+                                            <button type="button" wire:click="abrirSelectorReservacion"
+                                                class="btn btn-outline-success flex-fill">
+                                                <i class="bi bi-calendar-check me-1"></i> Reservación
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Mostrar Mesa Seleccionada -->
+                                    @if($mesaSeleccionada)
+                                    <div class="col-12">
+                                        <div class="alert alert-info d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <i class="bi bi-check-circle me-2"></i>
+                                                <strong>Mesa seleccionada:</strong>
+                                                @php
+                                                $mesa = \App\Models\Mesa::find($mesaSeleccionada);
+                                                @endphp
+                                                Mesa {{ $mesa->numero_mesa }} - {{ $mesa->ubicacion }} (Cap.
+                                                {{ $mesa->capacidad }})
+
+                                                @if($reservacionSeleccionada)
+                                                @php
+                                                $reservacion = \App\Models\Reservacion::find($reservacionSeleccionada);
+                                                @endphp
+                                                <span class="badge bg-success ms-2">Con Reservación</span>
+                                                <small class="d-block mt-1">
+                                                    Cliente: {{ $reservacion->usuario->nombre_completo }} |
+                                                    Monto a favor: Bs. {{ number_format($reservacion->monto_pago, 2) }}
+                                                </small>
+                                                @else
+                                                <span class="badge bg-primary ms-2">Sin Reservación</span>
+                                                @endif
+                                            </div>
+                                            <button type="button" wire:click="limpiarSeleccion"
+                                                class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-x-circle"></i> Cambiar
+                                            </button>
+                                        </div>
+                                    </div>
+                                    @endif
                                 @endif
 
                                 <!-- Selección de Cliente (solo si no hay reservación) -->
@@ -342,17 +352,16 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Columna Derecha: Carrito y Resumen -->
+                 <!-- Columna Derecha: Carrito y Resumen -->
                 <div class="col-md-4">
-                    <div class="card sticky-top" style="top: 20px;">
+                    <div class="card sticky-carrito">
                         <div class="card-header bg-primary text-white">
                             <h5 class="card-title mb-0">
                                 <i class="bi bi-cart me-2"></i>
                                 Carrito de Venta
                             </h5>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body carrito-body">
                             <!-- Lista de Productos en Carrito -->
                             @if(count($carrito) > 0)
                             <div class="table-responsive" style="max-height: 300px;">
@@ -428,13 +437,6 @@
                                             {{ number_format($descuentoPromociones, 2) }}</strong>
                                     </div>
                                     @endif
-
-                                    <div class="col-6">
-                                        <label class="form-label mb-1">Descuento Adicional:</label>
-                                        <input type="number" wire:model.live="descuentoManual"
-                                            class="form-control form-control-sm" min="0" max="{{ $subtotal }}"
-                                            step="0.01" placeholder="0.00">
-                                    </div>
                                     <div class="col-6 text-end pt-3">
                                         <strong>-Bs. {{ number_format($descuentoManual, 2) }}</strong>
                                     </div>
@@ -513,15 +515,33 @@
 
                             <!-- Botón Finalizar Venta -->
                             <div class="mt-4">
-                                <button wire:click="finalizarVenta" wire:loading.attr="disabled"
-                                    class="btn btn-success w-100 py-3">
+                                <button wire:click="finalizarVenta"
+                                    wire:loading.attr="disabled"
+                                    {{ !$mesaSeleccionada || count($carrito) === 0 ? 'disabled' : '' }}
+                                    class="btn btn-success w-100 py-3"
+                                    title="{{ !$mesaSeleccionada ? 'Selecciona una mesa o reservación' : (count($carrito) === 0 ? 'Agrega productos al carrito' : 'Finalizar venta') }}">
                                     <i class="bi bi-check-circle me-2"></i>
-                                    <span wire:loading.remove>Finalizar Venta</span>
+                                    <span wire:loading.remove>
+                                        @if(!$mesaSeleccionada)
+                                            Selecciona Mesa/Reservación
+                                        @elseif(count($carrito) === 0)
+                                            Carrito Vacío
+                                        @else
+                                            Finalizar Venta
+                                        @endif
+                                    </span>
                                     <span wire:loading>
                                         <span class="spinner-border spinner-border-sm me-2"></span>
                                         Procesando...
                                     </span>
                                 </button>
+
+                                @if(!$mesaSeleccionada && count($carrito) > 0)
+                                <small class="text-danger d-block text-center mt-2">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Debes seleccionar una mesa o reservación para continuar
+                                </small>
+                                @endif
                             </div>
                             @else
                             <!-- Carrito Vacío -->
@@ -624,19 +644,22 @@
                 <div class="modal-dialog modal-lg modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header bg-primary text-white">
-                            <h5 class="modal-title">
-                                <i class="bi bi-table me-2"></i>
-                                Mesas Disponibles - {{ date('d/m/Y') }}
-                            </h5>
-                            <button wire:click="cerrarSelectores" type="button"
-                                class="btn-close btn-close-white"></button>
+                                    <h5 class="modal-title">
+                                        <i class="bi bi-table me-2"></i>
+                                        Mesas Disponibles - {{ date('d/m/Y') }}
+                                        <span class="badge bg-light text-primary ms-2">
+                                            <i class="bi bi-people-fill me-1"></i>{{ $numeroPersonas }} {{ $numeroPersonas == 1 ? 'persona' : 'personas' }}
+                                        </span>
+                                    </h5>
+                                <button wire:click="cerrarSelectores" type="button"
+                                    class="btn-close btn-close-white"></button>
                         </div>
-                        <div class="modal-body">
-                            @if(count($mesasDisponiblesHoy) > 0)
-                            <div class="row g-3">
-                                @foreach($mesasDisponiblesHoy as $mesa)
-                                <div class="col-md-6">
-                                    <div class="card border-primary h-100 hover-shadow" style="cursor: pointer;"
+                                <div class="modal-body">
+                                    @if(count($mesasDisponiblesHoy) > 0)
+                                        <div class="row g-3">
+                                        @foreach($mesasDisponiblesHoy as $mesa)
+                                        <div class="col-md-6">
+                                        <div class="card border-primary h-100 hover-shadow" style="cursor: pointer;"
                                         wire:click="seleccionarMesaDisponible({{ $mesa->id_mesa }})">
                                         <div class="card-body text-center">
                                             <i class="bi bi-table display-4 text-primary mb-3"></i>
@@ -648,6 +671,18 @@
                                                 <i class="bi bi-people me-1"></i>
                                                 Capacidad: {{ $mesa->capacidad }} personas
                                             </p>
+
+                                            <!-- AGREGAR ESTE BADGE -->
+                                            @if($mesa->capacidad >= $numeroPersonas && $mesa->capacidad < ($numeroPersonas + 3))
+                                            <span class="badge bg-success mt-2">
+                                                <i class="bi bi-star-fill me-1"></i>Recomendada
+                                            </span>
+                                            @elseif($mesa->capacidad >= ($numeroPersonas + 3))
+                                            <span class="badge bg-warning mt-2">
+                                                <i class="bi bi-arrow-up me-1"></i>Mayor capacidad
+                                            </span>
+                                            @endif
+
                                             <button class="btn btn-primary btn-sm mt-3">
                                                 <i class="bi bi-check-circle me-1"></i>
                                                 Seleccionar Mesa
@@ -966,6 +1001,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+// Scroll al primer error cuando hay validación fallida
+document.addEventListener('livewire:init', () => {
+    Livewire.on('validacionError', () => {
+        // Scroll al mensaje de error
+        setTimeout(() => {
+            const alertElement = document.querySelector('.alert-danger, .alert-warning');
+            if (alertElement) {
+                alertElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 100);
+    });
+});
 
 // Función para imprimir el comprobante
 function imprimirComprobante() {
@@ -1015,7 +1062,20 @@ function imprimirComprobante() {
         box - shadow: 0 0.5 rem 1 rem rgba(0, 0, 0, 0.15);
         border - color: #0d6efd !important;
 }
+/* Asegurar que el carrito no se superponga al navbar */
+    .sticky-carrito {
+        position: sticky;
+        top: 80px;
+        z-index: 1020;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+    }
 
+    /* Scroll suave para el contenido del carrito */
+    .sticky-carrito .card-body {
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+    }
 .product-card .btn-primary:hover {
     transform: scale(1.05);
     transition: transform 0.2s ease;

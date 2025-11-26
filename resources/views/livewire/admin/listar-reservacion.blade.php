@@ -302,7 +302,7 @@
                                         <i class="bi bi-exclamation-triangle me-2"></i>
                                         No hay mesas disponibles para la fecha y número de personas seleccionados.
                                         @if(Carbon\Carbon::parse($fecha_reservacion)->isToday())
-                                            <br><strong>Nota:</strong> Para reservas hoy, solo se muestran horarios con al menos 2 horas de anticipación.
+                                            <br><strong>Nota:</strong> Para reservas hoy, solo se muestran horarios con al menos 1 hora de anticipación.
                                         @endif
                                     </div>
                                 @endif
@@ -348,7 +348,7 @@
                                         readonly
                                         placeholder="Selecciona un horario disponible arriba">
                                 @endif
-                                <small class="text-muted">Horarios disponibles: 8:00 AM - 8:00 PM (cada 2 horas). Mínimo 2 horas de anticipación.</small>
+                                <small class="text-muted">Horarios disponibles: 8:00 AM - 8:00 PM (cada 2 horas). Mínimo 1 hora de anticipación.</small>
                                 @error('hora_reservacion')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
