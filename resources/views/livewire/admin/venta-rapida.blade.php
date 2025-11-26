@@ -1,5 +1,3 @@
-
-
 <div class="container-fluid p-4">
     <div class="row">
         <div class="col-12">
@@ -48,7 +46,8 @@
                                 <!-- Tipo de Consumo -->
                                 <div class="col-md-6">
                                     <label class="form-label">Tipo de Consumo <span class="text-danger">*</span></label>
-                                    <select wire:model.live="tipoConsumo" class="form-select @error('tipoConsumo') is-invalid @enderror">
+                                    <select wire:model.live="tipoConsumo"
+                                        class="form-select @error('tipoConsumo') is-invalid @enderror">
                                         <option value="mesa">En Mesa</option>
                                     </select>
                                     @error('tipoConsumo')
@@ -58,64 +57,66 @@
                                 <!-- Selección de Mesa/Reservación -->
                                 @if($tipoConsumo === 'mesa')
                                 <!-- Número de Personas -->
-                                    <div class="col-md-12">
+                                <div class="col-md-12">
+                                </div>
+                                <!-- Alerta cuando no hay mesa seleccionada -->
+                                @if(!$mesaSeleccionada)
+                                <div class="col-12">
+                                    <div class="alert alert-warning d-flex align-items-center">
+                                        <i class="bi bi-exclamation-triangle me-2"></i>
+                                        <span>Por favor selecciona una <strong>Mesa Disponible</strong> o una
+                                            <strong>Reservación</strong> para continuar con la venta</span>
                                     </div>
-                                    <!-- Alerta cuando no hay mesa seleccionada -->
-                                    @if(!$mesaSeleccionada)
-                                    <div class="col-12">
-                                        <div class="alert alert-warning d-flex align-items-center">
-                                            <i class="bi bi-exclamation-triangle me-2"></i>
-                                            <span>Por favor selecciona una <strong>Mesa Disponible</strong> o una <strong>Reservación</strong> para continuar con la venta</span>
-                                        </div>
+                                </div>
+                                @endif
+                                <div class="col-md-6">
+                                    <label class="form-label">Seleccionar Mesa/Reservación <span
+                                            class="text-danger">*</span></label>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" wire:click="abrirSelectorMesa"
+                                            class="btn btn-outline-primary flex-fill">
+                                            <i class="bi bi-table me-1"></i> Mesa Disponible
+                                        </button>
+                                        <button type="button" wire:click="abrirSelectorReservacion"
+                                            class="btn btn-outline-success flex-fill">
+                                            <i class="bi bi-calendar-check me-1"></i> Reservación
+                                        </button>
                                     </div>
-                                    @endif
-                                    <div class="col-md-6">
-                                        <label class="form-label">Seleccionar Mesa/Reservación <span class="text-danger">*</span></label>
-                                        <div class="d-flex gap-2">
-                                            <button type="button" wire:click="abrirSelectorMesa"
-                                                class="btn btn-outline-primary flex-fill">
-                                                <i class="bi bi-table me-1"></i> Mesa Disponible
-                                            </button>
-                                            <button type="button" wire:click="abrirSelectorReservacion"
-                                                class="btn btn-outline-success flex-fill">
-                                                <i class="bi bi-calendar-check me-1"></i> Reservación
-                                            </button>
-                                        </div>
-                                    </div>
+                                </div>
 
-                                    <!-- Mostrar Mesa Seleccionada -->
-                                    @if($mesaSeleccionada)
-                                    <div class="col-12">
-                                        <div class="alert alert-info d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <i class="bi bi-check-circle me-2"></i>
-                                                <strong>Mesa seleccionada:</strong>
-                                                @php
-                                                $mesa = \App\Models\Mesa::find($mesaSeleccionada);
-                                                @endphp
-                                                Mesa {{ $mesa->numero_mesa }} - {{ $mesa->ubicacion }} (Cap.
-                                                {{ $mesa->capacidad }})
+                                <!-- Mostrar Mesa Seleccionada -->
+                                @if($mesaSeleccionada)
+                                <div class="col-12">
+                                    <div class="alert alert-info d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-check-circle me-2"></i>
+                                            <strong>Mesa seleccionada:</strong>
+                                            @php
+                                            $mesa = \App\Models\Mesa::find($mesaSeleccionada);
+                                            @endphp
+                                            Mesa {{ $mesa->numero_mesa }} - {{ $mesa->ubicacion }} (Cap.
+                                            {{ $mesa->capacidad }})
 
-                                                @if($reservacionSeleccionada)
-                                                @php
-                                                $reservacion = \App\Models\Reservacion::find($reservacionSeleccionada);
-                                                @endphp
-                                                <span class="badge bg-success ms-2">Con Reservación</span>
-                                                <small class="d-block mt-1">
-                                                    Cliente: {{ $reservacion->usuario->nombre_completo }} |
-                                                    Monto a favor: Bs. {{ number_format($reservacion->monto_pago, 2) }}
-                                                </small>
-                                                @else
-                                                <span class="badge bg-primary ms-2">Sin Reservación</span>
-                                                @endif
-                                            </div>
-                                            <button type="button" wire:click="limpiarSeleccion"
-                                                class="btn btn-sm btn-outline-danger">
-                                                <i class="bi bi-x-circle"></i> Cambiar
-                                            </button>
+                                            @if($reservacionSeleccionada)
+                                            @php
+                                            $reservacion = \App\Models\Reservacion::find($reservacionSeleccionada);
+                                            @endphp
+                                            <span class="badge bg-success ms-2">Con Reservación</span>
+                                            <small class="d-block mt-1">
+                                                Cliente: {{ $reservacion->usuario->nombre_completo }} |
+                                                Monto a favor: Bs. {{ number_format($reservacion->monto_pago, 2) }}
+                                            </small>
+                                            @else
+                                            <span class="badge bg-primary ms-2">Sin Reservación</span>
+                                            @endif
                                         </div>
+                                        <button type="button" wire:click="limpiarSeleccion"
+                                            class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-x-circle"></i> Cambiar
+                                        </button>
                                     </div>
-                                    @endif
+                                </div>
+                                @endif
                                 @endif
 
                                 <!-- Selección de Cliente (solo si no hay reservación) -->
@@ -352,7 +353,7 @@
                         </div>
                     </div>
                 </div>
-                 <!-- Columna Derecha: Carrito y Resumen -->
+                <!-- Columna Derecha: Carrito y Resumen -->
                 <div class="col-md-4">
                     <div class="card sticky-carrito">
                         <div class="card-header bg-primary text-white">
@@ -495,11 +496,7 @@
                                 <select wire:model="metodoPago"
                                     class="form-select @error('metodoPago') is-invalid @enderror">
                                     <option value="efectivo">Efectivo</option>
-                                    <option value="tarjeta">Tarjeta</option>
-                                    <option value="transferencia">Transferencia</option>
-                                    <option value="yape">Yape</option>
-                                    <option value="plin">Plin</option>
-                                    <option value="mixto">Mixto</option>
+                                    <option value="qr">QR</option>
                                 </select>
                                 @error('metodoPago')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -515,19 +512,18 @@
 
                             <!-- Botón Finalizar Venta -->
                             <div class="mt-4">
-                                <button wire:click="finalizarVenta"
-                                    wire:loading.attr="disabled"
+                                <button wire:click="finalizarVenta" wire:loading.attr="disabled"
                                     {{ !$mesaSeleccionada || count($carrito) === 0 ? 'disabled' : '' }}
                                     class="btn btn-success w-100 py-3"
                                     title="{{ !$mesaSeleccionada ? 'Selecciona una mesa o reservación' : (count($carrito) === 0 ? 'Agrega productos al carrito' : 'Finalizar venta') }}">
                                     <i class="bi bi-check-circle me-2"></i>
                                     <span wire:loading.remove>
                                         @if(!$mesaSeleccionada)
-                                            Selecciona Mesa/Reservación
+                                        Selecciona Mesa/Reservación
                                         @elseif(count($carrito) === 0)
-                                            Carrito Vacío
+                                        Carrito Vacío
                                         @else
-                                            Finalizar Venta
+                                        Finalizar Venta
                                         @endif
                                     </span>
                                     <span wire:loading>
@@ -644,22 +640,23 @@
                 <div class="modal-dialog modal-lg modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header bg-primary text-white">
-                                    <h5 class="modal-title">
-                                        <i class="bi bi-table me-2"></i>
-                                        Mesas Disponibles - {{ date('d/m/Y') }}
-                                        <span class="badge bg-light text-primary ms-2">
-                                            <i class="bi bi-people-fill me-1"></i>{{ $numeroPersonas }} {{ $numeroPersonas == 1 ? 'persona' : 'personas' }}
-                                        </span>
-                                    </h5>
-                                <button wire:click="cerrarSelectores" type="button"
-                                    class="btn-close btn-close-white"></button>
+                            <h5 class="modal-title">
+                                <i class="bi bi-table me-2"></i>
+                                Mesas Disponibles - {{ date('d/m/Y') }}
+                                <span class="badge bg-light text-primary ms-2">
+                                    <i class="bi bi-people-fill me-1"></i>{{ $numeroPersonas }}
+                                    {{ $numeroPersonas == 1 ? 'persona' : 'personas' }}
+                                </span>
+                            </h5>
+                            <button wire:click="cerrarSelectores" type="button"
+                                class="btn-close btn-close-white"></button>
                         </div>
-                                <div class="modal-body">
-                                    @if(count($mesasDisponiblesHoy) > 0)
-                                        <div class="row g-3">
-                                        @foreach($mesasDisponiblesHoy as $mesa)
-                                        <div class="col-md-6">
-                                        <div class="card border-primary h-100 hover-shadow" style="cursor: pointer;"
+                        <div class="modal-body">
+                            @if(count($mesasDisponiblesHoy) > 0)
+                            <div class="row g-3">
+                                @foreach($mesasDisponiblesHoy as $mesa)
+                                <div class="col-md-6">
+                                    <div class="card border-primary h-100 hover-shadow" style="cursor: pointer;"
                                         wire:click="seleccionarMesaDisponible({{ $mesa->id_mesa }})">
                                         <div class="card-body text-center">
                                             <i class="bi bi-table display-4 text-primary mb-3"></i>
@@ -673,20 +670,20 @@
                                             </p>
 
                                             <!-- AGREGAR ESTE BADGE -->
-                                            @if($mesa->capacidad >= $numeroPersonas && $mesa->capacidad < ($numeroPersonas + 3))
-                                            <span class="badge bg-success mt-2">
+                                            @if($mesa->capacidad >= $numeroPersonas && $mesa->capacidad <
+                                                ($numeroPersonas + 3)) <span class="badge bg-success mt-2">
                                                 <i class="bi bi-star-fill me-1"></i>Recomendada
-                                            </span>
-                                            @elseif($mesa->capacidad >= ($numeroPersonas + 3))
-                                            <span class="badge bg-warning mt-2">
-                                                <i class="bi bi-arrow-up me-1"></i>Mayor capacidad
-                                            </span>
-                                            @endif
+                                                </span>
+                                                @elseif($mesa->capacidad >= ($numeroPersonas + 3))
+                                                <span class="badge bg-warning mt-2">
+                                                    <i class="bi bi-arrow-up me-1"></i>Mayor capacidad
+                                                </span>
+                                                @endif
 
-                                            <button class="btn btn-primary btn-sm mt-3">
-                                                <i class="bi bi-check-circle me-1"></i>
-                                                Seleccionar Mesa
-                                            </button>
+                                                <button class="btn btn-primary btn-sm mt-3">
+                                                    <i class="bi bi-check-circle me-1"></i>
+                                                    Seleccionar Mesa
+                                                </button>
                                         </div>
                                     </div>
                                 </div>
@@ -857,7 +854,8 @@
                                         <p><strong>N° Venta:</strong> {{ $comprobanteData['numero_venta'] }}</p>
                                         <p><strong>N° Pedido:</strong> {{ $comprobanteData['numero_pedido'] }}</p>
                                         <p><strong>Fecha:</strong> {{ $comprobanteData['fecha'] }}</p>
-                                        <p><strong>Método Pago:</strong> {{ ucfirst($comprobanteData['metodo_pago']) }}
+                                        <p><strong>Método Pago:</strong>
+                                            {{ $comprobanteData['metodo_pago'] === 'efectivo' ? 'Efectivo' : 'QR' }}
                                         </p>
                                     </div>
                                     <div class="col-md-6">
@@ -1008,7 +1006,10 @@ document.addEventListener('livewire:init', () => {
         setTimeout(() => {
             const alertElement = document.querySelector('.alert-danger, .alert-warning');
             if (alertElement) {
-                alertElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                alertElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
             }
         }, 100);
     });

@@ -111,8 +111,8 @@
             @foreach($reporteData as $res)
             <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td>{{ $res->usuario->nombre ?? 'No registrado' }}</td>
-                <td>{{ $res->mesa->nombre ?? '-' }}</td>
+                <td>{{ $res->usuario->nombre_completo ?? 'No registrado' }}</td>
+                <td>{{ $res->mesa->numero_mesa ?? '-' }}</td>
                 <td>{{ \Carbon\Carbon::parse($res->fecha_reservacion)->format('d/m/Y H:i') }}</td>
                 <td>{{ $res->numero_personas }}</td>
                 <td>

@@ -52,38 +52,38 @@ class Reportes extends Component
         }
     }
 
-    public function generarReporte()
-    {
-        $this->reporteData = [];
-        $this->estadisticas = [];
+public function generarReporte()
+{
+    $this->reporteData = [];
+    $this->estadisticas = [];
 
-        switch ($this->tipoReporte) {
-            case 'usuarios':
-                $this->generarReporteUsuarios();
-                break;
-            case 'productos':
-                $this->generarReporteProductos();
-                break;
-            case 'categorias':
-                $this->generarReporteCategorias();
-                break;
-            case 'promociones':
-                $this->generarReportePromociones();
-                break;
-            case 'mesas':
-                $this->generarReporteMesas();
-                break;
-            case 'reservaciones':
-                $this->generarReporteReservaciones();
-                break;
-            case 'ventas':
-                $this->generarReporteVentas();
-                break;
-            case 'general':
-                $this->generarReporteGeneral();
-                break;
-        }
+    switch ($this->tipoReporte) {
+        case 'usuarios':
+            $this->generarReporteUsuarios();
+            break;
+        case 'productos':
+            $this->generarReporteProductos();
+            break;
+        case 'categorias':
+            $this->generarReporteCategorias();
+            break;
+        case 'promociones':
+            $this->generarReportePromociones();
+            break;
+        case 'mesas':
+            $this->generarReporteMesas();
+            break;
+        case 'reservaciones':
+            $this->generarReporteReservaciones();
+            break;
+        case 'ventas':
+            $this->generarReporteVentas(); // Ya no necesita capturar retorno
+            break;
+        case 'general':
+            $this->generarReporteGeneral();
+            break;
     }
+}
 
     public function updatedTipoReporte($value)
     {
@@ -234,92 +234,87 @@ class Reportes extends Component
 
     private function generarReporteReservaciones()
     {
-        $query = Reservacion::with(['mesa', 'usuario'])
-            ->whereBetween('fecha_reservacion', [$this->fechaInicio, $this->fechaFin]);
+        // Cargar relaciones con las columnas correctas
+        $query = Reservacion::with([
+            'usuario:id_usuario,nombre_completo',
+            'mesa:id_mesa,numero_mesa' // ← CORREGIDO: usar numero_mesa en lugar de nombre
+        ])->whereBetween('fecha_reservacion', [$this->fechaInicio, $this->fechaFin]);
 
         $this->reporteData = $query->orderBy('fecha_reservacion', 'desc')->get();
 
+        // Para las estadísticas, necesitamos una consulta separada sin las relaciones
+        $statsQuery = Reservacion::whereBetween('fecha_reservacion', [$this->fechaInicio, $this->fechaFin]);
+
         $this->estadisticas = [
-            'total' => $query->count(),
-            'pendientes' => $query->where('estado', 'pendiente')->count(),
-            'confirmadas' => $query->where('estado', 'confirmada')->count(),
-            'completadas' => $query->where('estado', 'completada')->count(),
-            'canceladas' => $query->where('estado', 'cancelada')->count(),
-            'no_asistio' => $query->where('estado', 'no_asistio')->count(),
-            'personas_total' => $query->sum('numero_personas'),
-            'promedio_personas' => round($query->avg('numero_personas'), 2)
+            'total' => $statsQuery->count(),
+            'pendientes' => $statsQuery->where('estado', 'pendiente')->count(),
+            'confirmadas' => $statsQuery->where('estado', 'confirmada')->count(),
+            'completadas' => $statsQuery->where('estado', 'completada')->count(),
+            'canceladas' => $statsQuery->where('estado', 'cancelada')->count(),
+            'no_asistio' => $statsQuery->where('estado', 'no_asistio')->count(),
+            'personas_total' => $statsQuery->sum('numero_personas'),
+            'promedio_personas' => round($statsQuery->avg('numero_personas'), 2)
         ];
     }
+private function generarReporteVentas()
+{
+    try {
+        Log::info('=== INICIANDO REPORTE VENTAS ===');
+        Log::info('Fechas:', ['inicio' => $this->fechaInicio, 'fin' => $this->fechaFin]);
 
-    private function generarReporteVentas()
-    {
-        try {
-            Log::info('=== INICIANDO REPORTE VENTAS ===');
-            Log::info('Fechas:', ['inicio' => $this->fechaInicio, 'fin' => $this->fechaFin]);
+        // Obtener datos para la tabla - asignar directamente
+        $this->reporteData = Venta::with(['usuario', 'detalles.producto'])
+            ->whereBetween('fecha_venta', [$this->fechaInicio, $this->fechaFin])
+            ->orderBy('fecha_venta', 'desc')
+            ->get();
 
-            // Obtener datos para la tabla
-            $this->reporteData = Venta::with(['usuario', 'detalles.producto'])
+        Log::info('Total registros encontrados: ' . $this->reporteData->count());
+
+        // Obtener estadísticas - asignar directamente
+        $estadisticasBase = Venta::whereBetween('fecha_venta', [$this->fechaInicio, $this->fechaFin])
+            ->select(
+                DB::raw('COUNT(*) as total_ventas'),
+                DB::raw('SUM(total) as ingresos_totales'),
+                DB::raw('SUM(subtotal) as subtotal'),
+                DB::raw('SUM(descuento) as descuentos'),
+                DB::raw('AVG(total) as ticket_promedio')
+            )
+            ->first();
+
+        $this->estadisticas = [
+            'total_ventas' => $estadisticasBase->total_ventas ?? 0,
+            'ingresos_totales' => $estadisticasBase->ingresos_totales ?? 0,
+            'subtotal' => $estadisticasBase->subtotal ?? 0,
+            'descuentos' => $estadisticasBase->descuentos ?? 0,
+            'ticket_promedio' => round($estadisticasBase->ticket_promedio ?? 0, 2),
+            'por_metodo_pago' => Venta::select('metodo_pago', DB::raw('count(*) as total'), DB::raw('sum(total) as monto'))
                 ->whereBetween('fecha_venta', [$this->fechaInicio, $this->fechaFin])
-                ->orderBy('fecha_venta', 'desc')
-                ->get();
+                ->groupBy('metodo_pago')
+                ->get(),
+            'productos_vendidos' => DB::table('detalle_venta')
+                ->join('ventas', 'detalle_venta.id_venta', '=', 'ventas.id_venta')
+                ->whereBetween('ventas.fecha_venta', [$this->fechaInicio, $this->fechaFin])
+                ->sum('detalle_venta.cantidad')
+        ];
 
-            Log::info('Total registros encontrados: ' . $this->reporteData->count());
+        Log::info('=== FIN REPORTE VENTAS ===');
 
-            // Debug del primer elemento
-            if ($this->reporteData->count() > 0) {
-                $primerElemento = $this->reporteData->first();
-                Log::info('Tipo del primer elemento: ' . gettype($primerElemento));
-                Log::info('Clase del primer elemento: ' . (is_object($primerElemento) ? get_class($primerElemento) : 'No es objeto'));
-                Log::info('Valor del primer elemento: ' . json_encode($primerElemento));
-            } else {
-                Log::info('No se encontraron ventas en el período');
-            }
+    } catch (\Exception $e) {
+        Log::error('Error en generarReporteVentas: ' . $e->getMessage());
+        Log::error('Trace: ' . $e->getTraceAsString());
 
-            // Obtener estadísticas
-            $estadisticasBase = Venta::whereBetween('fecha_venta', [$this->fechaInicio, $this->fechaFin])
-                ->select(
-                    DB::raw('COUNT(*) as total_ventas'),
-                    DB::raw('SUM(total) as ingresos_totales'),
-                    DB::raw('SUM(subtotal) as subtotal'),
-                    DB::raw('SUM(descuento) as descuentos'),
-                    DB::raw('AVG(total) as ticket_promedio')
-                )
-                ->first();
-
-            $this->estadisticas = [
-                'total_ventas' => $estadisticasBase->total_ventas ?? 0,
-                'ingresos_totales' => $estadisticasBase->ingresos_totales ?? 0,
-                'subtotal' => $estadisticasBase->subtotal ?? 0,
-                'descuentos' => $estadisticasBase->descuentos ?? 0,
-                'ticket_promedio' => round($estadisticasBase->ticket_promedio ?? 0, 2),
-                'por_metodo_pago' => Venta::select('metodo_pago', DB::raw('count(*) as total'), DB::raw('sum(total) as monto'))
-                    ->whereBetween('fecha_venta', [$this->fechaInicio, $this->fechaFin])
-                    ->groupBy('metodo_pago')
-                    ->get(),
-                'productos_vendidos' => DB::table('detalle_venta')
-                    ->join('ventas', 'detalle_venta.id_venta', '=', 'ventas.id_venta')
-                    ->whereBetween('ventas.fecha_venta', [$this->fechaInicio, $this->fechaFin])
-                    ->sum('detalle_venta.cantidad')
-            ];
-
-            Log::info('=== FIN REPORTE VENTAS ===');
-
-        } catch (\Exception $e) {
-            Log::error('Error en generarReporteVentas: ' . $e->getMessage());
-            Log::error('Trace: ' . $e->getTraceAsString());
-
-            $this->reporteData = [];
-            $this->estadisticas = [
-                'total_ventas' => 0,
-                'ingresos_totales' => 0,
-                'subtotal' => 0,
-                'descuentos' => 0,
-                'ticket_promedio' => 0,
-                'por_metodo_pago' => [],
-                'productos_vendidos' => 0
-            ];
-        }
+        $this->reporteData = [];
+        $this->estadisticas = [
+            'total_ventas' => 0,
+            'ingresos_totales' => 0,
+            'subtotal' => 0,
+            'descuentos' => 0,
+            'ticket_promedio' => 0,
+            'por_metodo_pago' => [],
+            'productos_vendidos' => 0
+        ];
     }
+}
 
     private function generarReporteGeneral()
     {
@@ -433,10 +428,12 @@ class Reportes extends Component
 
     public function render()
     {
-        return view('livewire.admin.reportes')
-            ->layout('layouts.admin', [
-                'title' => 'Reportes',
-                'pageTitle' => 'Sistema de Reportes'
-            ]);
+        return view('livewire.admin.reportes', [
+            'reporteData' => $this->reporteData,
+            'estadisticas' => $this->estadisticas
+        ])->layout('layouts.admin', [
+            'title' => 'Reportes',
+            'pageTitle' => 'Sistema de Reportes'
+        ]);
     }
 }

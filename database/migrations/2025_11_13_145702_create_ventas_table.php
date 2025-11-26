@@ -28,7 +28,7 @@ return new class extends Migration
             $table->decimal('subtotal', 10, 2);
             $table->decimal('descuento', 10, 2)->default(0);
             $table->decimal('total', 10, 2);
-            $table->enum('metodo_pago', ['efectivo', 'tarjeta', 'transferencia', 'yape', 'plin', 'mixto'])->default('efectivo');
+            $table->enum('metodo_pago', ['efectivo', 'qr'])->default('efectivo');
             $table->enum('estado_venta', ['pendiente', 'completada', 'anulada'])->default('completada');
             $table->text('observaciones')->nullable();
             $table->timestampTz('fecha_venta')->useCurrent();

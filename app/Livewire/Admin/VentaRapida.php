@@ -42,7 +42,7 @@ class VentaRapida extends Component
 
     protected $rules = [
         'mesaSeleccionada' => 'required_if:tipoConsumo,mesa|exists:mesas,id_mesa',
-        'metodoPago' => 'required|in:efectivo,tarjeta,transferencia,yape,plin,mixto',
+        'metodoPago' => 'required|in:efectivo,qr',
         'tipoConsumo' => 'required|in:mesa,para_llevar',
         'clienteSeleccionado' => 'nullable|exists:usuarios,id_usuario'
     ];
@@ -522,11 +522,12 @@ class VentaRapida extends Component
         // Validación más específica
         $this->validate([
             'mesaSeleccionada' => 'required',
-            'metodoPago' => 'required',
+            'metodoPago' => 'required|in:efectivo,qr',
             'carrito' => 'required|array|min:1',
         ], [
             'mesaSeleccionada.required' => 'Debes seleccionar una mesa o reservación antes de continuar',
             'metodoPago.required' => 'Debes seleccionar un método de pago',
+            'metodoPago.in' => 'El método de pago debe ser Efectivo o QR',
             'carrito.required' => 'El carrito está vacío',
             'carrito.min' => 'Debes agregar al menos un producto al carrito',
         ]);
