@@ -288,19 +288,24 @@
 
                                                     @if($producto['tiene_promocion'])
                                                     <div class="mb-2">
-                                                        <small class="text-decoration-line-through text-muted">
-                                                            Bs.
-                                                            {{ number_format($producto['precio_original'] ?? $producto['precio'], 2) }}
+                                                        <small class="text-decoration-line-through text-muted d-block">
+                                                            Bs. {{ number_format($producto['precio_original'] ?? $producto['precio'], 2) }}
                                                         </small>
-                                                        <span class="badge bg-success ms-1">
-                                                            <i class="bi bi-tag-fill"></i> Oferta
-                                                        </span>
+                                                        <p class="card-text text-success fw-bold mb-1 fs-5">
+                                                            Bs. {{ number_format($producto['precio_con_descuento'], 2) }}
+                                                            <span class="badge bg-success ms-1">
+                                                                <i class="bi bi-tag-fill"></i> -{{ number_format($producto['descuento_aplicado'], 0) }}%
+                                                            </span>
+                                                        </p>
+                                                        <small class="text-success d-block">
+                                                            <i class="bi bi-piggy-bank me-1"></i>Ahorras: Bs. {{ number_format($producto['ahorro'], 2) }}
+                                                        </small>
                                                     </div>
-                                                    @endif
-
+                                                    @else
                                                     <p class="card-text text-success fw-bold mb-1 fs-5">
                                                         Bs. {{ number_format($producto['precio'], 2) }}
                                                     </p>
+                                                    @endif
 
                                                     <p class="card-text small mb-2">
                                                         <span
@@ -380,8 +385,17 @@
                                         <tr>
                                             <td>
                                                 <small class="d-block fw-bold">{{ $item['nombre'] }}</small>
-                                                <small class="text-muted">Bs.
-                                                    {{ number_format($item['precio_unitario'], 2) }} c/u</small>
+                                                @if($item['tiene_promocion'])
+                                                    <small class="text-decoration-line-through text-muted">Bs.
+                                                        {{ number_format($item['precio_original'], 2) }} c/u</small>
+                                                    <small class="d-block text-success fw-bold">Bs.
+                                                        {{ number_format($item['precio_unitario'], 2) }} c/u
+                                                        <span class="badge bg-success ms-1" style="font-size: 0.65rem;">Oferta</span>
+                                                    </small>
+                                                @else
+                                                    <small class="text-muted">Bs.
+                                                        {{ number_format($item['precio_unitario'], 2) }} c/u</small>
+                                                @endif
                                             </td>
                                             <td class="text-center">
                                                 <div class="d-flex align-items-center justify-content-center">
@@ -405,7 +419,14 @@
                                                 </div>
                                             </td>
                                             <td class="text-end">
-                                                <strong>Bs. {{ number_format($item['subtotal'], 2) }}</strong>
+                                                @if($item['tiene_promocion'])
+                                                    <small class="d-block text-decoration-line-through text-muted">
+                                                        Bs. {{ number_format($item['precio_original'] * $item['cantidad'], 2) }}
+                                                    </small>
+                                                    <strong class="text-success">Bs. {{ number_format($item['subtotal'], 2) }}</strong>
+                                                @else
+                                                    <strong>Bs. {{ number_format($item['subtotal'], 2) }}</strong>
+                                                @endif
                                             </td>
                                             <td>
                                                 <button wire:click="eliminarProducto({{ $index }})"
@@ -418,29 +439,44 @@
                                     </tbody>
                                 </table>
                             </div>
-
                             <!-- Resumen de Totales -->
                             <div class="border-top pt-3 mt-3">
                                 <div class="row g-2">
+                                    @php
+                                        $subtotalSinDescuentos = collect($carrito)->sum(function($item) {
+                                            return $item['precio_original'] * $item['cantidad'];
+                                        });
+                                    @endphp
+
                                     <div class="col-6">
                                         <strong>Subtotal:</strong>
                                     </div>
                                     <div class="col-6 text-end">
-                                        <strong>Bs. {{ number_format($subtotal, 2) }}</strong>
+                                        <strong>Bs. {{ number_format($subtotalSinDescuentos, 2) }}</strong>
                                     </div>
 
                                     @if($descuentoPromociones > 0)
                                     <div class="col-6">
-                                        <strong class="text-success">Descuento Promociones:</strong>
+                                        <strong class="text-success">
+                                            <i class="bi bi-tag-fill me-1"></i>Desc. Promociones:
+                                        </strong>
                                     </div>
                                     <div class="col-6 text-end">
                                         <strong class="text-success">-Bs.
                                             {{ number_format($descuentoPromociones, 2) }}</strong>
                                     </div>
                                     @endif
-                                    <div class="col-6 text-end pt-3">
-                                        <strong>-Bs. {{ number_format($descuentoManual, 2) }}</strong>
+
+                                    @if($descuentoManual > 0)
+                                    <div class="col-6">
+                                        <strong class="text-success">
+                                            <i class="bi bi-percent me-1"></i>Desc. Adicional:
+                                        </strong>
                                     </div>
+                                    <div class="col-6 text-end">
+                                        <strong class="text-success">-Bs. {{ number_format($descuentoManual, 2) }}</strong>
+                                    </div>
+                                    @endif
 
                                     @if($reservacionSeleccionada)
                                     @php

@@ -236,122 +236,102 @@
         width: 20px;
     }
 
-    /* Botones Mejorados */
-    .btn {
-        padding: 0.75rem 1.8rem;
-        border-radius: 25px;
-        font-weight: 600;
-        font-size: 0.9rem;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        border: 2px solid transparent;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        letter-spacing: 0.5px;
-        position: relative;
-        overflow: hidden;
-    }
+/* Botones Mejorados - REFACTORIZADO */
+.btn, .btn-logout { /* Aplica estilos comunes a todas las variantes */
+    padding: 0.75rem 1.8rem;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent; /* El btn-logout también necesita este border */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+    /* Las siguientes reglas se aplican a ambos, .btn y .btn-logout */
+    font-family: 'Poppins', sans-serif; /* Ya estaba en body, pero para mayor seguridad */
+}
 
-    .btn::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.2);
-        transform: translate(-50%, -50%);
-        transition: width 0.5s, height 0.5s;
-        z-index: 0;
-    }
+/* Pseudo-elemento Común para el Efecto Hover (Wave Effect) */
+.btn::before, .btn-logout::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+    z-index: 0;
+}
 
-    .btn:hover::before {
-        width: 300px;
-        height: 300px;
-    }
+.btn:hover::before, .btn-logout:hover::before {
+    width: 300px;
+    height: 300px;
+}
 
-    .btn>* {
-        position: relative;
-        z-index: 1;
-    }
+.btn>* {
+    position: relative;
+    z-index: 1;
+}
 
-    .btn-primary {
-        background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-secondary) 100%);
-        color: white;
-        box-shadow: 0 4px 15px rgba(193, 120, 23, 0.3);
-    }
+/* Clases de Variantes */
+.btn-primary {
+    background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-secondary) 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(193, 120, 23, 0.3);
+}
 
-    .btn-primary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 25px rgba(193, 120, 23, 0.5);
-    }
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 25px rgba(193, 120, 23, 0.5);
+}
 
-    .btn-secondary {
-        background: transparent;
-        color: var(--color-cream);
-        border-color: var(--color-secondary);
-    }
+.btn-secondary {
+    background: transparent;
+    color: var(--color-cream);
+    border-color: var(--color-secondary);
+}
 
-    .btn-secondary:hover {
-        background: var(--color-secondary);
-        color: var(--color-dark);
-        border-color: var(--color-secondary);
-        transform: translateY(-3px);
-    }
+.btn-secondary:hover {
+    background: var(--color-secondary);
+    color: var(--color-dark);
+    border-color: var(--color-secondary);
+    transform: translateY(-3px);
+}
 
-    .btn-light {
-        background: rgba(255, 255, 255, 0.1);
-        color: var(--color-cream);
-        border: 2px solid var(--color-secondary);
-    }
+.btn-light {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-cream);
+    border: 2px solid var(--color-secondary); /* Sobreescribe el border-color */
+}
 
-    .btn-light:hover {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-    }
+.btn-light:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
 
-    .btn-logout {
-        background: none;
-        border: 2px solid transparent;
-        color: var(--color-cream);
-        padding: 0.75rem 1.8rem;
-        border-radius: 25px;
-        font-weight: 600;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-family: 'Poppins', sans-serif;
-        position: relative;
-        overflow: hidden;
-    }
+/* Estilos Específicos para Logout (Solo las diferencias) */
+.btn-logout {
+    background: none; /* Sobreescribe el background de .btn (aunque ya es transparente) */
+    color: var(--color-cream); /* Color inicial de texto */
+    border-color: transparent; /* Sobreescribe el border-color para el efecto hover */
+    /* Elimina padding, border-radius, font-weight, etc. porque ya están en .btn */
+    /* Elimina los estilos del before/hover del before porque ya están en .btn::before */
+}
 
-    .btn-logout::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.1);
-        transform: translate(-50%, -50%);
-        transition: width 0.5s, height 0.5s;
-    }
-
-    .btn-logout:hover::before {
-        width: 300px;
-        height: 300px;
-    }
-
-    .btn-logout:hover {
-        border-color: #e74c3c;
-        color: #e74c3c;
-        transform: translateY(-2px);
-    }
+.btn-logout:hover {
+    border-color: #e74c3c;
+    color: #e74c3c;
+    transform: translateY(-2px);
+}
 
     /* Mobile Menu Toggle */
     .menu-toggle {
@@ -1098,30 +1078,6 @@
             min-width: auto;
         }
     }
-        :root {
-        --color-primary: #6B4423;
-        --color-secondary: #D4A574;
-        --color-accent: #C17817;
-        --color-cream: #FAF7F2;
-        --color-dark: #3E2723;
-        --color-light: #FFFFFF;
-        --shadow-soft: 0 4px 20px rgba(107, 68, 35, 0.1);
-        --shadow-medium: 0 8px 30px rgba(107, 68, 35, 0.15);
-    }
-
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Poppins', sans-serif;
-        background: linear-gradient(135deg, #FAF7F2 0%, #F5EFE6 100%);
-        color: #2c2c2c;
-        min-height: 100vh;
-        line-height: 1.6;
-    }
 
     /* Estilos para modales grandes */
     .modal-xl-custom {
@@ -1152,7 +1108,7 @@
                     <div class="brand-icon">☕</div>
                     <div class="brand-content">
                         <div class="brand-name">EL RINCÓN SABROSITO</div>
-                        <div class="brand-tagline">Calm Energy</div>
+                        <div class="brand-tagline">El Café mas Rico</div>
                     </div>
                 </a>
                 <div class="nav-links">
@@ -1160,8 +1116,6 @@
                     <a href="{{ route('home') }}#productos" class="nav-link">Productos</a>
                 </div>
             </div>
-
-            <!-- REEMPLAZA la sección del navbar en welcome.blade.php (línea ~311-320 aprox) -->
 
             <div class="auth-section">
                 @auth
@@ -1206,7 +1160,7 @@
 
                         <!-- Opciones del menú -->
                         <li>
-                            <a class="dropdown-item user-dropdown-item" href="{{ route('cliente.perfil') }}">
+                            <a class="dropdown-item user-dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPerfil">
                                 <i class="bi bi-person"></i>
                                 <span>Mi Perfil</span>
                             </a>
@@ -1287,10 +1241,10 @@
         <div class="hero-banner">
             <div class="hero-content">
                 <h1 class="hero-title">EL RINCÓN SABROSITO</h1>
-                <p class="hero-subtitle">IPOTIALIANO</p>
+                <p class="hero-subtitle">A LO BOLIVIANO</p>
                 <p class="hero-description">
-                    Experimenta la perfecta fusión entre la calidad del café colombiano
-                    y el estilo italiano. Calm Energy para tu día a día.
+                    Experimenta la perfecta fusión entre la calidad del café Boliviano
+                    y el estilo italiano. Energia pura para tu día a día.
                 </p>
             </div>
         </div>
@@ -1308,23 +1262,23 @@
                     <div class="feature-content">
                         <div class="feature-title">Café Premium</div>
                         <div class="feature-description">
-                            100% colombiano seleccionado de las mejores fincas
+                            100% Boliviano seleccionado de las mejores regiones cafetaleras
                         </div>
                     </div>
                 </li>
                 <li class="feature-item">
-                    <div class="feature-icon">🚚</div>
+                    <div class="feature-icon">☕</div>
                     <div class="feature-content">
-                        <div class="feature-title">Envío Gratis</div>
+                        <div class="feature-title">Aprovecha las Promociones
                         <div class="feature-description">
-                            En compras superiores a $50.000
+                            Ven y adquiere tus productos favoritos a precios especiales y con promociones con descuelto hasta del 20%
                         </div>
                     </div>
                 </li>
                 <li class="feature-item">
                     <div class="feature-icon">🎁</div>
                     <div class="feature-content">
-                        <div class="feature-title">Combos Únicos</div>
+                        <div class="feature-title">Proximas Ofertas Navideñas</div>
                         <div class="feature-description">
                             Ofertas especiales diseñadas para ti
                         </div>
@@ -1532,7 +1486,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button class="btn btn-secondary text-black"  data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -1578,7 +1532,7 @@
                     </ul>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button class="btn btn-secondary text-black" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>

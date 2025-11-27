@@ -6,12 +6,12 @@ use App\Models\Categoria;
 use App\Models\Producto;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use Livewire\Attributes\On;
 
 class ListarProducto extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithPagination;
 
     protected $paginationTheme = 'bootstrap';
 
@@ -21,45 +21,13 @@ class ListarProducto extends Component
     public $filterEstado = '';
     public $perPage = 10;
 
-    // Propiedades para edición/creación
-    public $productoId;
-    public $id_categoria;
-    public $nombre;
-    public $descripcion;
-    public $precio;
-    public $stock;
-    public $stock_minimo = 0;
-    public $imagen_url;
-    public $imagen;
-    public $estado = true;
-
-    // Modal
-    public $showModal = false;
-    public $isEditing = false;
+    // Modal de eliminación
     public $productoToDelete = null;
 
     public $categorias = [];
 
-    protected $rules = [
-        'id_categoria' => 'required|exists:categorias,id_categoria',
-        'nombre' => 'required|min:3|max:100',
-        'descripcion' => 'nullable|max:500',
-        'precio' => 'required|numeric|min:0',
-        'stock' => 'required|integer|min:0',
-        'stock_minimo' => 'required|integer|min:0',
-        'imagen' => 'nullable|image|max:2048',
-        'estado' => 'boolean'
-    ];
-
-    protected $messages = [
-        'id_categoria.required' => 'La categoría es obligatoria',
-        'nombre.required' => 'El nombre del producto es obligatorio',
-        'nombre.min' => 'El nombre debe tener al menos 3 caracteres',
-        'precio.required' => 'El precio es obligatorio',
-        'precio.numeric' => 'El precio debe ser un número válido',
-        'stock.required' => 'El stock es obligatorio',
-        'stock.integer' => 'El stock debe ser un número entero',
-    ];
+    // Listeners para refrescar el componente
+    protected $listeners = ['refreshComponent' => '$refresh'];
 
     public function mount()
     {
@@ -81,131 +49,125 @@ class ListarProducto extends Component
         $this->resetPage();
     }
 
-    public function openModal()
-    {
-        $this->resetForm();
-        $this->showModal = true;
-        $this->isEditing = false;
-    }
-
-    public function editProducto($id)
-    {
-        $producto = Producto::findOrFail($id);
-
-        $this->productoId = $producto->id_producto;
-        $this->id_categoria = $producto->id_categoria;
-        $this->nombre = $producto->nombre;
-        $this->descripcion = $producto->descripcion;
-        $this->precio = $producto->precio;
-        $this->stock = $producto->stock;
-        $this->stock_minimo = $producto->stock_minimo;
-        $this->imagen_url = $producto->imagen_url;
-        $this->estado = $producto->estado;
-
-        $this->showModal = true;
-        $this->isEditing = true;
-    }
-
-    public function saveProducto()
-    {
-        $this->validate();
-
-        $data = [
-            'id_categoria' => $this->id_categoria,
-            'nombre' => $this->nombre,
-            'descripcion' => $this->descripcion,
-            'precio' => $this->precio,
-            'stock' => $this->stock,
-            'stock_minimo' => $this->stock_minimo,
-            'estado' => $this->estado
-        ];
-
-        // Manejar la imagen
-        if ($this->imagen) {
-            // Eliminar imagen anterior si existe
-            if ($this->isEditing && $this->imagen_url) {
-                Storage::disk('public')->delete($this->imagen_url);
-            }
-
-            $imagePath = $this->imagen->store('productos', 'public');
-            $data['imagen'] = $imagePath;
-        }
-
-        try {
-            if ($this->isEditing) {
-                Producto::find($this->productoId)->update($data);
-                session()->flash('success', 'Producto actualizado correctamente.');
-            } else {
-                Producto::create($data);
-                session()->flash('success', 'Producto creado correctamente.');
-            }
-
-            $this->closeModal();
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error al guardar el producto: ' . $e->getMessage());
-        }
-    }
-
     public function toggleEstado($id)
     {
         try {
             $producto = Producto::findOrFail($id);
+
+            // Solo permitir desactivar si el stock es 0
+            if ($producto->estado && $producto->stock > 0) {
+                $this->dispatch('show-message', [
+                    'type' => 'error',
+                    'message' => 'No se puede desactivar un producto con stock disponible. Stock actual: ' . $producto->stock
+                ]);
+                return;
+            }
+
             $producto->estado = !$producto->estado;
             $producto->save();
 
-            session()->flash('success', 'Estado actualizado correctamente.');
+            $mensaje = $producto->estado ? 'Producto activado correctamente.' : 'Producto desactivado correctamente.';
+            $this->dispatch('show-message', [
+                'type' => 'success',
+                'message' => $mensaje
+            ]);
+
         } catch (\Exception $e) {
-            session()->flash('error', 'Error al cambiar el estado: ' . $e->getMessage());
+            $this->dispatch('show-message', [
+                'type' => 'error',
+                'message' => 'Error al cambiar el estado: ' . $e->getMessage()
+            ]);
         }
     }
 
     public function confirmDelete($id)
     {
+        $producto = Producto::find($id);
+
+        if (!$producto) {
+            $this->dispatch('show-message', [
+                'type' => 'error',
+                'message' => 'Producto no encontrado.'
+            ]);
+            return;
+        }
+
+        // Verificar que el stock sea 0
+        if ($producto->stock > 0) {
+            $this->dispatch('show-message', [
+                'type' => 'error',
+                'message' => 'No se puede eliminar un producto con stock disponible. Stock actual: ' . $producto->stock
+            ]);
+            return;
+        }
+
+        // Establecer el producto a eliminar - esto hará que el modal se muestre
         $this->productoToDelete = $id;
+    }
+
+    public function cancelDelete()
+    {
+        $this->productoToDelete = null;
     }
 
     public function deleteProducto()
     {
         try {
-            $producto = Producto::find($this->productoToDelete);
-
-            if ($producto) {
-                // Eliminar imagen si existe
-                if ($producto->imagen_url) {
-                    Storage::disk('public')->delete($producto->imagen_url);
-                }
-
-                $producto->delete();
-                session()->flash('success', 'Producto eliminado correctamente.');
+            if (!$this->productoToDelete) {
+                return;
             }
 
+            $producto = Producto::find($this->productoToDelete);
+
+            if (!$producto) {
+                $this->dispatch('show-message', [
+                    'type' => 'error',
+                    'message' => 'Producto no encontrado.'
+                ]);
+                $this->productoToDelete = null;
+                return;
+            }
+
+            // Verificar nuevamente que el stock sea 0
+            if ($producto->stock > 0) {
+                $this->dispatch('show-message', [
+                    'type' => 'error',
+                    'message' => 'No se puede eliminar un producto con stock disponible. Stock actual: ' . $producto->stock
+                ]);
+                $this->productoToDelete = null;
+                return;
+            }
+
+            // Guardar el nombre del producto para el mensaje
+            $nombreProducto = $producto->nombre;
+
+            // Eliminar imagen si existe
+            if ($producto->imagen && Storage::disk('public')->exists($producto->imagen)) {
+                Storage::disk('public')->delete($producto->imagen);
+            }
+
+            // Eliminar el producto
+            $producto->delete();
+
+            // Cerrar el modal primero
             $this->productoToDelete = null;
+
+            // Luego mostrar el mensaje
+            $this->dispatch('show-message', [
+                'type' => 'success',
+                'message' => "Producto '{$nombreProducto}' eliminado correctamente."
+            ]);
+
+            // Refrescar la página si quedó vacía
+            $this->resetPage();
+
         } catch (\Exception $e) {
-            session()->flash('error', 'Error al eliminar el producto: ' . $e->getMessage());
+            $this->dispatch('show-message', [
+                'type' => 'error',
+                'message' => 'Error al eliminar el producto: ' . $e->getMessage()
+            ]);
+            $this->productoToDelete = null;
         }
-    }
-
-    public function resetForm()
-    {
-        $this->reset([
-            'productoId',
-            'id_categoria',
-            'nombre',
-            'descripcion',
-            'precio',
-            'stock',
-            'stock_minimo',
-            'imagen',
-            'estado'
-        ]);
-        $this->imagen_url = null;
-        $this->resetErrorBag();
-    }
-
-    public function closeModal()
-    {
-        $this->showModal = false;
-        $this->resetForm();
     }
 
     public function render()

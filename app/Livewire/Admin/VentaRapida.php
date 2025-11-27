@@ -298,20 +298,35 @@ class VentaRapida extends Component
     }
 
     private function formatearProducto($producto)
-    {
-        return [
-            'id_producto' => $producto->id_producto,
-            'nombre' => $producto->nombre,
-            'precio' => (float)$producto->precio,
-            'precio_con_descuento' => (float)$producto->precio_con_descuento,
-            'tiene_promocion' => $producto->tiene_promocion,
-            'descuento_aplicado' => $producto->descuento_aplicado,
-            'ahorro' => $producto->ahorro,
-            'stock' => $producto->stock,
-            'imagen' => $producto->imagen ? asset('storage/' . $producto->imagen) : null,
-            'descripcion' => $producto->descripcion
-        ];
+{
+    // Asegurarse de que todos los valores numéricos sean float/int
+    $precioOriginal = (float)$producto->precio;
+    $precioConDescuento = (float)$producto->precio_con_descuento;
+    $tienePromocion = (bool)$producto->tiene_promocion;
+
+    // Calcular descuento y ahorro
+    $descuentoAplicado = 0;
+    $ahorro = 0;
+
+    if ($tienePromocion && $precioOriginal > 0) {
+        $ahorro = $precioOriginal - $precioConDescuento;
+        $descuentoAplicado = ($ahorro / $precioOriginal) * 100; // Porcentaje
     }
+
+    return [
+        'id_producto' => $producto->id_producto,
+        'nombre' => $producto->nombre,
+        'precio' => $precioOriginal,
+        'precio_original' => $precioOriginal, // Agregar esta línea
+        'precio_con_descuento' => $precioConDescuento,
+        'tiene_promocion' => $tienePromocion,
+        'descuento_aplicado' => round($descuentoAplicado, 2), // Asegurar que sea numérico
+        'ahorro' => round($ahorro, 2), // Asegurar que sea numérico
+        'stock' => (int)$producto->stock,
+        'imagen' => $producto->imagen ? asset('storage/' . $producto->imagen) : null,
+        'descripcion' => $producto->descripcion
+    ];
+}
 
     private function getPromocionesActivasQuery()
     {
@@ -375,24 +390,26 @@ class VentaRapida extends Component
 
         return true;
     }
-
     private function prepararDatosProducto($producto)
     {
-        $precioUnitario = (float)$producto->precio_con_descuento;
         $precioOriginal = (float)$producto->precio;
+        $precioConDescuento = (float)$producto->precio_con_descuento;
         $tienePromocion = $producto->tiene_promocion;
-        $descuentoAplicado = $tienePromocion ? ($precioOriginal - $precioUnitario) : 0;
+
+        // El descuento ya está aplicado en precio_con_descuento
+        // Solo calculamos cuánto se ahorró para mostrarlo
+        $descuentoAplicado = $tienePromocion ? ($precioOriginal - $precioConDescuento) : 0;
 
         return [
             'id_producto' => $producto->id_producto,
             'nombre' => $producto->nombre,
-            'precio_unitario' => $precioUnitario,
-            'precio_original' => $precioOriginal,
+            'precio_unitario' => $precioConDescuento, // Precio final a cobrar
+            'precio_original' => $precioOriginal, // Solo para mostrar
             'cantidad' => 1,
-            'subtotal' => $precioUnitario,
+            'subtotal' => $precioConDescuento, // Usar precio con descuento
             'tiene_promocion' => $tienePromocion,
-            'descuento_aplicado' => $descuentoAplicado,
-            'descuento_total' => $descuentoAplicado,
+            'descuento_aplicado' => $descuentoAplicado, // Por unidad
+            'descuento_total' => $descuentoAplicado, // Total = unitario * cantidad
         ];
     }
 
@@ -462,34 +479,39 @@ class VentaRapida extends Component
         $this->carrito = array_values($this->carrito);
         $this->calcularTotales();
     }
+public function calcularTotales()
+{
+    // Calcular subtotal SIN descuentos (precios originales)
+    $this->subtotal = collect($this->carrito)->sum(function($item) {
+        return $item['precio_original'] * $item['cantidad'];
+    });
 
-    public function calcularTotales()
-    {
-        $this->subtotal = collect($this->carrito)->sum('subtotal');
-        $this->descuentoPromociones = collect($this->carrito)->sum('descuento_total');
+    // El descuento de promociones es la diferencia entre precio original y precio con descuento
+    $this->descuentoPromociones = collect($this->carrito)->sum('descuento_total');
 
-        $descuentoManual = max(0, (float)$this->descuentoManual);
+    $descuentoManual = max(0, (float)$this->descuentoManual);
 
-        // Si hay reservación, agregar el monto como descuento
-        $montoReservacion = 0;
-        if ($this->reservacionSeleccionada) {
-            $reservacion = Reservacion::find($this->reservacionSeleccionada);
-            if ($reservacion) {
-                $montoReservacion = (float)$reservacion->monto_pago;
-            }
+    // Si hay reservación, agregar el monto como descuento
+    $montoReservacion = 0;
+    if ($this->reservacionSeleccionada) {
+        $reservacion = Reservacion::find($this->reservacionSeleccionada);
+        if ($reservacion) {
+            $montoReservacion = (float)$reservacion->monto_pago;
         }
-
-        $this->descuento = $this->descuentoPromociones + $descuentoManual + $montoReservacion;
-
-        // Validar que el descuento no sea mayor al subtotal
-        if ($this->descuento > $this->subtotal) {
-            $this->descuento = $this->subtotal;
-            $this->descuentoManual = max(0, $this->subtotal - $this->descuentoPromociones - $montoReservacion);
-        }
-
-        $this->total = max(0, $this->subtotal - $this->descuento);
     }
 
+    // El descuento total incluye: promociones + manual + reservación
+    $this->descuento = $this->descuentoPromociones + $descuentoManual + $montoReservacion;
+
+    // Validar que el descuento no sea mayor al subtotal
+    if ($this->descuento > $this->subtotal) {
+        $this->descuento = $this->subtotal;
+        $excesoDescuento = $this->descuento - $this->descuentoPromociones - $montoReservacion;
+        $this->descuentoManual = max(0, $excesoDescuento);
+    }
+
+    $this->total = max(0, $this->subtotal - $this->descuento);
+}
     public function incrementarCantidad($index)
     {
         if (!isset($this->carrito[$index])) return;
@@ -636,21 +658,23 @@ class VentaRapida extends Component
         }
     }
 
-    private function crearDetallePedido($pedido, $producto, $item)
-    {
-        $descuentoIndividual = $item['tiene_promocion'] ?
-            ($item['precio_original'] - $item['precio_unitario']) * $item['cantidad'] : 0;
+private function crearDetallePedido($pedido, $producto, $item)
+{
+    // El descuento individual es la diferencia entre precio original y precio final
+    // multiplicado por la cantidad
+    $descuentoIndividual = $item['tiene_promocion'] ?
+        ($item['precio_original'] - $item['precio_unitario']) * $item['cantidad'] : 0;
 
-        DetallePedido::create([
-            'id_pedido' => $pedido->id_pedido,
-            'id_producto' => $producto->id_producto,
-            'cantidad' => $item['cantidad'],
-            'precio_unitario' => $item['precio_unitario'],
-            'descuento' => $descuentoIndividual,
-            'subtotal' => $item['subtotal'],
-            'estado_preparacion' => 'pendiente',
-        ]);
-    }
+    DetallePedido::create([
+        'id_pedido' => $pedido->id_pedido,
+        'id_producto' => $producto->id_producto,
+        'cantidad' => $item['cantidad'],
+        'precio_unitario' => $item['precio_unitario'], // Ya tiene descuento aplicado
+        'descuento' => $descuentoIndividual, // Para registro
+        'subtotal' => $item['subtotal'], // Ya tiene descuento aplicado
+        'estado_preparacion' => 'pendiente',
+    ]);
+}
 
     private function actualizarStockProducto($producto, $cantidad)
     {
