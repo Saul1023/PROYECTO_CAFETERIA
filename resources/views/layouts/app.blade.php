@@ -225,12 +225,6 @@
                 </a>
             </div>
 
-            <div class="nav-item">
-                <a href="#" class="nav-link">
-                    <i class="bi bi-tag"></i>
-                    <span>Promociones</span>
-                </a>
-            </div>
 
             <div class="nav-item">
                 <a href="#" class="nav-link">

@@ -1096,10 +1096,89 @@
             margin: 0.5rem;
         }
     }
+    .player-container {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 25px 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    text-align: center;
+    backdrop-filter: blur(6px);
+  }
+
+    .btn {
+    padding: 12px 25px;
+    margin: 10px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+  }
+
+  .play {
+    background: #4caf50;
+    color: white;
+  }
+
+  .play:hover {
+    background: #3e8e41;
+    transform: scale(1.05);
+  }
+
+  .pause {
+    background: #e53935;
+    color: white;
+  }
+
+  .pause:hover {
+    background: #b71c1c;
+    transform: scale(1.05);
+  }
+  .whatsapp-float {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #25D366;
+    padding: 12px;
+    border-radius: 50%;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 1000;
+    transition: transform 0.2s;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1);
+}
+
+.whatsapp-float img {
+    width: 36px;
+    height: 36px;
+}
+.tiktok-float {
+    position: fixed;
+    bottom: 100px;  /* un poco arriba del WhatsApp si quieres juntos */
+    right: 20px;
+    background-color: #000;  /* negro estilo TikTok */
+    padding: 12px;
+    border-radius: 50%;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 1000;
+    transition: transform 0.2s;
+}
+
+.tiktok-float:hover {
+    transform: scale(1.1);
+}
+
+.tiktok-float img {
+    width: 36px;
+    height: 36px;
+}
     </style>
 </head>
 
 <body>
+    <audio src="musica/cafeteria.mp3" autoplay loop></audio>
     <!-- Header Navigation -->
     <header class="nav-header">
         <nav class="nav-container">
@@ -1107,7 +1186,7 @@
                 <a href="{{ route('home') }}" class="brand-logo">
                     <div class="brand-icon">☕</div>
                     <div class="brand-content">
-                        <div class="brand-name">EL RINCÓN SABROSITO</div>
+                        <div class="brand-name">Cafetiria ELvirita</div>
                         <div class="brand-tagline">El Café mas Rico</div>
                     </div>
                 </a>
@@ -1118,6 +1197,7 @@
             </div>
 
             <div class="auth-section">
+                
                 @auth
                 <!-- MENÚ PARA CLIENTES AUTENTICADOS -->
                 @if(auth()->user()->esCliente())
@@ -1135,6 +1215,7 @@
 
                 <!-- Dropdown de Usuario -->
                 <div class="dropdown">
+                    
                     <button class="btn btn-light d-flex align-items-center gap-2" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="user-avatar">
                             {{ strtoupper(substr(Auth::user()->nombre, 0, 1) . substr(Auth::user()->apellido_pat ?? Auth::user()->nombre, 0, 1)) }}
@@ -1216,7 +1297,8 @@
 
                     @auth
                         @if(auth()->user()->esCliente())
-                            <li><a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#modalReservarMesa">Reservar</a></li>
+                            <li><a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#modalReservarMesa">Reservar Mesa</a></li>
+                          
                             <li><a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#modalMisReservaciones">Mis Reservas</a></li>
                         @endif
 
@@ -1237,54 +1319,35 @@
 
     <!-- Main Content - SOLO PRODUCTOS -->
     <main class="main-container">
+        <a href="https://wa.me/59169648605?text=Hola%20quiero%20pedir%20un%20café" 
+            target="_blank" class="whatsapp-float">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
+        </a>
+        <a href="https://www.tiktok.com/@deadpoolskp" target="_blank" class="tiktok-float">
+            <img src="https://cdn-icons-png.flaticon.com/512/3046/3046129.png" alt="TikTok">
+        </a>
         <!-- Hero Banner -->
         <div class="hero-banner">
             <div class="hero-content">
-                <h1 class="hero-title">EL RINCÓN SABROSITO</h1>
-                <p class="hero-subtitle">A LO BOLIVIANO</p>
+                <h1 class="hero-title">Cafeteria Elvirita</h1>
                 <p class="hero-description">
-                    Experimenta la perfecta fusión entre la calidad del café Boliviano
-                    y el estilo italiano. Energia pura para tu día a día.
+                    "La felicidad no se compra, pero un buen café sí… y eso se le parece mucho."
                 </p>
+            </div>
+            <div class="player-container">
+                <audio id="musica" src="musica/cafeteria.mp3" loop></audio>
+                <button class="btn play" onclick="playMusic()">▶️ Play</button>
+                <button class="btn pause" onclick="pauseMusic()">⏸️ Pause</button>
             </div>
         </div>
 
         <!-- Información para usuarios -->
         <div class="welcome-section">
             <p class="welcome-text">
-                Donde el café de calidad se encuentra con el estilo italiano.
                 Regístrate para realizar pedidos y disfrutar de nuestras ofertas exclusivas.
             </p>
 
-            <ul class="features-list">
-                <li class="feature-item">
-                    <div class="feature-icon">☕</div>
-                    <div class="feature-content">
-                        <div class="feature-title">Café Premium</div>
-                        <div class="feature-description">
-                            100% Boliviano seleccionado de las mejores regiones cafetaleras
-                        </div>
-                    </div>
-                </li>
-                <li class="feature-item">
-                    <div class="feature-icon">☕</div>
-                    <div class="feature-content">
-                        <div class="feature-title">Aprovecha las Promociones
-                        <div class="feature-description">
-                            Ven y adquiere tus productos favoritos a precios especiales y con promociones con descuelto hasta del 20%
-                        </div>
-                    </div>
-                </li>
-                <li class="feature-item">
-                    <div class="feature-icon">🎁</div>
-                    <div class="feature-content">
-                        <div class="feature-title">Proximas Ofertas Navideñas</div>
-                        <div class="feature-description">
-                            Ofertas especiales diseñadas para ti
-                        </div>
-                    </div>
-                </li>
-            </ul>
+            
 
             @guest
             <div style="text-align: center;">
@@ -1636,7 +1699,18 @@ document.addEventListener('DOMContentLoaded', function() {
         producto.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
     });
 });
+
+function playMusic() {
+  const audio = document.getElementById("musica");
+  audio.play();
+}
+
+function pauseMusic() {
+  const audio = document.getElementById("musica");
+  audio.pause();
+}
 </script>
+
 </body>
 
 </html>

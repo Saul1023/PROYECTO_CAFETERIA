@@ -411,13 +411,7 @@
                     </a>
                 </div>
 
-                <div class="nav-item">
-                    <a href="{{ route('promociones') }}"
-                        class="nav-link {{ request()->routeIs('promociones') ? 'active' : '' }}">
-                        <i class="bi bi-tag"></i>
-                        <span>Promociones</span>
-                    </a>
-                </div>
+                
 
                 <div class="nav-item">
                     <a href="{{ route('reportes') }}"

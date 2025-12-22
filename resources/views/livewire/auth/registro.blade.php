@@ -84,7 +84,7 @@
 
                 <div class="col-md-6 mb-3">
                     <label class="form-label fw-semibold">
-                        <i class="bi bi-telephone me-1"></i>Teléfono
+                        <i class="bi bi-telephone me-1"></i>Teléfono - WhatsApp
                     </label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0">

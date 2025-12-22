@@ -176,7 +176,7 @@
                                     </div>
                                     <div class="col-md-4 text-center mt-3 mt-md-0">
                                         <div class="p-2 border rounded-3 bg-white d-inline-block">
-                                            <img src="/img/escanear.png"
+                                            <img src="/img/Pago.jpeg"
                                                 alt="Código QR para pago"
                                                 class="img-fluid"
                                                 style="max-width: 120px; border-radius: 6px;">
